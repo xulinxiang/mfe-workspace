@@ -12,7 +12,6 @@ import { ADMIN } from '@/config/admin-permissions'
 import { useAuth } from '@/context/AuthContext'
 import { Form, Input, Modal, Popconfirm } from 'antd'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import styles from '../admin.module.scss'
 
 type Props = {
@@ -77,12 +76,6 @@ export default function RoleManagePanel({ data, run }: Props) {
 
   return (
     <>
-      <div className={styles.catalogBanner}>
-        <p>
-          在此维护角色编码与名称。给角色勾选页面/按钮权限请到{' '}
-          <Link to="/admin/roles">角色与权限</Link>。
-        </p>
-      </div>
       <article className={styles.panel}>
         <div className={styles.panelHead}>
           <h2>角色列表</h2>

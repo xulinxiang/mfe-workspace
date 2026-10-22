@@ -142,9 +142,9 @@ INSERT INTO route_catalog (subsystem_code, route_key, label, path, permission_co
   ('host', 'admin-permissions', '权限目录', '/admin/permissions', 'admin:permissions:view', 94),
   ('product', 'product-list', '商品列表', '/product', 'product:list', 10),
   ('product', 'product-category', '商品分类', '/product/category', 'product:category', 20),
-  ('product', 'product-create', '新建商品', '/product/create', 'product:create', 30),
+  ('user', 'user-list', '用户列表', '/user', 'user:list', 5),
   ('product', 'product-detail', '商品详情', '/product/detail/:id', 'product:view', 40),
-  ('user', 'user-profile', '用户中心', '/user', 'user:profile', 10),
+  ('user', 'user-profile', '个人资料', '/user/profile', 'user:profile', 10),
   ('host', 'admin-role-manage', '角色管理', '/admin/role-manage', 'admin:role-manage:view', 92);
 
 INSERT INTO tenant (id, code, name, menu_layout) VALUES
@@ -179,25 +179,26 @@ INSERT INTO menu_item (tenant_id, menu_key, label, path, app_name, permission_co
   (1, 'group-product-hub', '商品中心', '#', NULL, NULL, 15, 'group', NULL, NULL),
   (1, 'product-list', '商品列表', '/product', 'product', 'product:list', 10, 'route', 2, 5),
   (1, 'product-category', '商品分类', '/product/category', 'product', 'product:category', 20, 'route', 2, 6),
-  (1, 'product-create', '新建商品', '/product/create', 'product', 'product:create', 30, 'route', 2, 7),
-  (1, 'user-center', '用户中心', '/user', 'user', 'user:profile', 50, 'route', NULL, 9),
+  (1, 'group-user-hub', '用户中心', '#', NULL, NULL, 50, 'group', NULL, NULL),
+  (1, 'user-list', '用户列表', '/user', 'user', 'user:list', 10, 'route', 5, 7),
+  (1, 'user-profile', '个人资料', '/user/profile', 'user', 'user:profile', 20, 'route', 5, 9),
   (1, 'group-tenant-admin', '租户治理', '#', NULL, NULL, 88, 'group', NULL, NULL),
-  (1, 'admin-members', '成员管理', '/admin/members', 'host', 'admin:members:view', 10, 'route', 7, 2),
-  (1, 'admin-role-manage', '角色管理', '/admin/role-manage', 'host', 'admin:role-manage:view', 15, 'route', 7, 10),
-  (1, 'admin-roles', '角色与权限', '/admin/roles', 'host', 'admin:roles:view', 20, 'route', 7, 3),
-  (1, 'admin-permissions', '权限目录', '/admin/permissions', 'host', 'admin:permissions:view', 30, 'route', 7, 4),
+  (1, 'admin-members', '成员管理', '/admin/members', 'host', 'admin:members:view', 10, 'route', 8, 2),
+  (1, 'admin-role-manage', '角色管理', '/admin/role-manage', 'host', 'admin:role-manage:view', 15, 'route', 8, 10),
+  (1, 'admin-roles', '角色与权限', '/admin/roles', 'host', 'admin:roles:view', 20, 'route', 8, 3),
+  (1, 'admin-permissions', '权限目录', '/admin/permissions', 'host', 'admin:permissions:view', 30, 'route', 8, 4),
   (2, 'dashboard', '工作台', '/', 'host', 'dashboard:view', 10, 'route', NULL, 1),
   (2, 'product-list', '商品列表', '/product', 'product', 'product:list', 20, 'route', NULL, 5),
-  (2, 'user-center', '用户中心', '/user', 'user', 'user:profile', 30, 'route', NULL, 9);
+  (2, 'user-list', '用户列表', '/user', 'user', 'user:list', 30, 'route', NULL, 7);
 
 INSERT INTO permission (id, code, name, resource_type, parent_code, subsystem_code) VALUES
-  (1, 'dashboard:view', '查看工作台', 'page', NULL, 'host'),
-  (2, 'product:list', '查看商品列表', 'page', NULL, 'product'),
-  (3, 'product:view', '查看商品详情', 'page', NULL, 'product'),
-  (4, 'product:create', '新建商品', 'action', 'product:list', 'product'),
-  (5, 'product:category', '查看商品分类', 'page', NULL, 'product'),
-  (6, 'user:profile', '查看个人资料', 'page', NULL, 'user'),
-  (7, 'user:profile:update', '修改个人资料', 'action', 'user:profile', 'user'),
+  (1, 'dashboard:view', '工作台', 'page', NULL, 'host'),
+  (2, 'product:list', '商品列表', 'page', NULL, 'product'),
+  (3, 'product:view', '商品详情', 'page', NULL, 'product'),
+  (4, 'product:list:create', '新建商品', 'action', 'product:list', 'product'),
+  (5, 'product:category', '商品分类', 'page', NULL, 'product'),
+  (6, 'user:profile', '个人资料', 'page', NULL, 'user'),
+  (7, 'user:profile:update', '修改资料', 'action', 'user:profile', 'user'),
   (8, 'admin:members:view', '成员管理', 'page', NULL, 'host'),
   (9, 'admin:members:create', '新建成员', 'action', 'admin:members:view', 'host'),
   (10, 'admin:members:assign-role', '分配角色', 'action', 'admin:members:view', 'host'),
@@ -210,7 +211,16 @@ INSERT INTO permission (id, code, name, resource_type, parent_code, subsystem_co
   (15, 'admin:permissions:view', '权限目录', 'page', NULL, 'host'),
   (16, 'admin:permissions:create', '新建权限', 'action', 'admin:permissions:view', 'host'),
   (17, 'admin:permissions:update', '编辑权限', 'action', 'admin:permissions:view', 'host'),
-  (18, 'admin:permissions:delete', '删除权限', 'action', 'admin:permissions:view', 'host');
+  (18, 'admin:permissions:delete', '删除权限', 'action', 'admin:permissions:view', 'host'),
+  (21, 'product:list:update', '编辑商品', 'action', 'product:list', 'product'),
+  (22, 'product:list:delete', '删除商品', 'action', 'product:list', 'product'),
+  (23, 'product:category:create', '新建分类', 'action', 'product:category', 'product'),
+  (24, 'product:category:update', '编辑分类', 'action', 'product:category', 'product'),
+  (25, 'product:category:delete', '删除分类', 'action', 'product:category', 'product'),
+  (26, 'user:list', '用户列表', 'page', NULL, 'user'),
+  (27, 'user:list:create', '新建用户', 'action', 'user:list', 'user'),
+  (28, 'user:list:update', '编辑用户', 'action', 'user:list', 'user'),
+  (29, 'user:list:delete', '删除用户', 'action', 'user:list', 'user');
 
 UPDATE permission p
 LEFT JOIN route_catalog r ON r.permission_code = p.code
@@ -230,8 +240,9 @@ INSERT INTO role_permission (role_id, permission_id) VALUES
   (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7),
   (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14),
   (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20),
-  (2, 1), (2, 2), (2, 3), (2, 5), (2, 6),
-  (3, 1), (3, 2), (3, 3), (3, 6);
+  (1, 21), (1, 22), (1, 23), (1, 24), (1, 25), (1, 26), (1, 27), (1, 28), (1, 29),
+  (2, 1), (2, 2), (2, 3), (2, 5), (2, 6), (2, 26),
+  (3, 1), (3, 2), (3, 3), (3, 5), (3, 26);
 
 INSERT INTO dashboard_stat (tenant_id, remotes, orders_today, pending, active_users_label) VALUES
   (1, 2, 128, 6, '1.2k'),

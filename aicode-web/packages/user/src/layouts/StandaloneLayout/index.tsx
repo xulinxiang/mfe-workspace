@@ -1,12 +1,23 @@
 import type { ReactNode } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import { cx } from '@/utils/cx'
 import styles from './index.module.scss'
+
+const LOCAL_MENU = [
+  { to: '/', label: '用户列表', end: true },
+  { to: '/profile', label: '个人资料', end: true },
+] as const
 
 type Props = {
   children: ReactNode
 }
 
 export default function StandaloneLayout({ children }: Props) {
+  const { pathname } = useLocation()
+  const current =
+    LOCAL_MENU.find((m) => (m.end ? pathname === m.to : pathname.startsWith(m.to)))?.label ??
+    '页面'
+
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
@@ -20,14 +31,17 @@ export default function StandaloneLayout({ children }: Props) {
 
         <nav className={styles.nav}>
           <p className={styles.navGroup}>本域菜单（本地）</p>
-          <button type="button" className={cx(styles.item, styles.active)}>
-            <i className={styles.icon} aria-hidden />
-            <span>用户中心</span>
-          </button>
-          <button type="button" className={cx(styles.item, styles.disabled)} disabled>
-            <i className={styles.icon} aria-hidden />
-            <span>商品列表</span>
-          </button>
+          {LOCAL_MENU.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => cx(styles.item, isActive && styles.active)}
+            >
+              <i className={styles.icon} aria-hidden />
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
         </nav>
 
         <div className={styles.foot}>
@@ -46,7 +60,7 @@ export default function StandaloneLayout({ children }: Props) {
           <div className={styles.crumb}>
             <span>首页</span>
             <i>/</i>
-            <strong>用户中心</strong>
+            <strong>{current}</strong>
           </div>
           <div className={styles.actions}>
             <span className={styles.warn}>Standalone</span>

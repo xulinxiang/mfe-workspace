@@ -13,9 +13,8 @@ export default function LoginPage() {
       ? '/'
       : (location.state as { from?: string } | null)?.from ?? '/'
 
-  const [email, setEmail] = useState('demo@company.com')
+  const [account, setAccount] = useState('demo@company.com')
   const [password, setPassword] = useState('demo123')
-  const [tenantCode, setTenantCode] = useState('demo')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -28,7 +27,7 @@ export default function LoginPage() {
     setError(null)
     setSubmitting(true)
     try {
-      await login({ tenantCode: tenantCode.trim(), email: email.trim(), password })
+      await login({ email: account.trim(), password })
       navigate(from, { replace: true })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '登录失败，请稍后重试')
@@ -44,29 +43,19 @@ export default function LoginPage() {
           <span className={styles.mark}>运</span>
           <div>
             <h1>运营中台登录</h1>
-            <p>Aicode · 多租户演示环境</p>
+            <p>账号密码登录</p>
           </div>
         </div>
 
         <form onSubmit={onSubmit}>
           <div className={styles.field}>
-            <label htmlFor="tenantCode">租户编码</label>
+            <label htmlFor="account">账号</label>
             <input
-              id="tenantCode"
-              value={tenantCode}
-              onChange={(e) => setTenantCode(e.target.value)}
-              autoComplete="organization"
-              required
-            />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="email">邮箱</label>
-            <input
-              id="email"
-              type="email"
+              id="account"
+              type="text"
               autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={account}
+              onChange={(e) => setAccount(e.target.value)}
               required
             />
           </div>

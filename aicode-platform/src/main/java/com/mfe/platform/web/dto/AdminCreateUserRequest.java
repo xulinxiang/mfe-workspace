@@ -2,7 +2,6 @@ package com.mfe.platform.web.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -10,7 +9,7 @@ import javax.validation.constraints.Size;
 public class AdminCreateUserRequest {
 
   @NotBlank
-  @Email
+  @Size(max = 128)
   private String email;
 
   @NotBlank

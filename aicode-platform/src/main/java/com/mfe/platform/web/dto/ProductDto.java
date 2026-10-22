@@ -8,6 +8,7 @@ public class ProductDto {
   private double price;
   private int stock;
   private String status;
+  private Long categoryId;
 
   public long getId() {
     return id;
@@ -55,5 +56,13 @@ public class ProductDto {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
   }
 }

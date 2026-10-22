@@ -39,20 +39,36 @@ public class AuthController {
 
   @PostMapping("/login")
   public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    String account = request.getEmail().trim().toLowerCase();
+    AppUserEntity user = null;
+    if (request.getTenantCode() != null && !request.getTenantCode().trim().isEmpty()) {
+      TenantEntity tenant =
+          tenantRepository
+              .findByCode(request.getTenantCode().trim().toLowerCase())
+              .orElseThrow(() -> new BusinessException(401, "账号或密码错误"));
+      user =
+          userRepository
+              .findByTenantIdAndEmail(tenant.getId(), account)
+              .orElseThrow(() -> new BusinessException(401, "账号或密码错误"));
+      if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        throw new BusinessException(401, "账号或密码错误");
+      }
+    } else {
+      for (AppUserEntity candidate : userRepository.findAllByEmail(account)) {
+        if (passwordEncoder.matches(request.getPassword(), candidate.getPasswordHash())) {
+          user = candidate;
+          break;
+        }
+      }
+      if (user == null) {
+        throw new BusinessException(401, "账号或密码错误");
+      }
+    }
+
     TenantEntity tenant =
         tenantRepository
-            .findByCode(request.getTenantCode().trim().toLowerCase())
-            .orElseThrow(() -> new BusinessException(401, "租户、邮箱或密码错误"));
-
-    AppUserEntity user =
-        userRepository
-            .findByTenantIdAndEmail(
-                tenant.getId(), request.getEmail().trim().toLowerCase())
-            .orElseThrow(() -> new BusinessException(401, "租户、邮箱或密码错误"));
-
-    if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-      throw new BusinessException(401, "租户、邮箱或密码错误");
-    }
+            .findById(user.getTenantId())
+            .orElseThrow(() -> new BusinessException(401, "账号或密码错误"));
 
     String token = jwtService.createToken(user.getId(), tenant.getId(), user.getEmail());
 

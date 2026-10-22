@@ -45,6 +45,12 @@
   border-radius: 4px;
 }
 
+.headActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -57,6 +63,11 @@
   color: $ink;
   text-decoration: none;
   cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .primary {
@@ -80,6 +91,9 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.85rem 1rem;
+}
+
+.card.toolbar {
   margin-bottom: 0.75rem;
 }
 
@@ -114,6 +128,15 @@
 .tableCard {
   overflow: hidden;
 
+  .toolbar {
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid $line;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -134,6 +157,13 @@
     padding: 0.85rem 1rem;
     border-bottom: 1px solid #f0f1f2;
     vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  th:last-child,
+  td:last-child {
+    width: 1%;
+    white-space: nowrap;
   }
 
   tbody tr:hover {
@@ -149,6 +179,13 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nameCell strong {
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .thumb {
@@ -161,6 +198,7 @@
   color: #fff;
   font-weight: 700;
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .mono {
@@ -203,6 +241,227 @@
   text-decoration: underline;
 }
 
+.panel {
+  overflow: hidden;
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid $line;
+}
+
+.panelHead h2 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.panelTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.panelBody {
+  padding: 0.85rem 1.1rem 1.1rem;
+}
+
+.searchInline input {
+  width: 220px;
+  border: 1px solid $line;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+  outline: none;
+  background: #fff;
+}
+
+.searchInline input:focus {
+  border-color: #91caff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.dataTable th {
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  color: $muted;
+  font-weight: 600;
+  font-size: 0.78rem;
+  border-bottom: 1px solid $line;
+  white-space: nowrap;
+}
+
+.dataTable td {
+  padding: 0.75rem 0.65rem;
+  border-bottom: 1px solid #f0f1f2;
+  vertical-align: middle;
+}
+
+.dataTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.dataTable tbody tr:hover {
+  background: #f7faff;
+}
+
+.colNarrow {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.colActions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.bannerError {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: $danger;
+  font-size: 0.88rem;
+}
+
+.rowActions {
+  display: inline-flex;
+  gap: 0;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+.actionSep {
+  width: 1px;
+  height: 12px;
+  margin: 0 0.45rem;
+  background: $line;
+  flex-shrink: 0;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modalDialog {
+  width: min(100%, 440px);
+  background: $card;
+  border-radius: $radius;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid $line;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid $line;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modalClose {
+  border: 0;
+  background: transparent;
+  color: $muted;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+}
+
+.modalForm {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  color: $muted;
+  font-size: 0.85rem;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid $line;
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  outline: none;
+  background: #fff;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #91caff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.modalForm .formError {
+  grid-column: auto;
+  margin: 0;
+}
+
+.linkBtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: $accent;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+.linkDanger {
+  color: $danger;
+}
+
 .empty {
   text-align: center;
   color: $muted;
@@ -233,13 +492,18 @@
 
 .form {
   display: grid;
-  gap: 0.9rem;
-  max-width: 520px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   padding: 1.1rem 1.2rem;
+  margin-bottom: 0.75rem;
 
   label {
     display: grid;
     gap: 0.4rem;
+    min-width: 0;
   }
 
   span {
@@ -247,16 +511,43 @@
     font-size: 0.85rem;
   }
 
-  input {
+  input,
+  select {
+    width: 100%;
+    box-sizing: border-box;
     border: 1px solid $line;
     border-radius: 6px;
     padding: 0.55rem 0.7rem;
     font: inherit;
     outline: none;
+    background: #fff;
   }
 
-  input:focus {
+  input:focus,
+  select:focus {
     border-color: #91caff;
     box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
+  }
+}
+
+.formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 0.15rem;
+}
+
+.formError {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: $danger;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 720px) {
+  .form {
+    grid-template-columns: 1fr;
   }
 }

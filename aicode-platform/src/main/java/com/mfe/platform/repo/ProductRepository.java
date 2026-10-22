@@ -11,5 +11,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
   Optional<ProductEntity> findByIdAndTenantId(Long id, Long tenantId);
 
+  Optional<ProductEntity> findByTenantIdAndSku(Long tenantId, String sku);
+
   long countByTenantIdAndCategoryId(Long tenantId, Long categoryId);
 }

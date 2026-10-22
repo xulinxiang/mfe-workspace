@@ -1,7 +1,8 @@
 import { hasPermission } from '@aicode/shared/auth'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getProductList } from '@/api/product'
+import { deleteProduct, getProductList } from '@/api/product'
+import { PRODUCT } from '@/permissions'
 import type { Product } from '@/types/product'
 import styles from '@/styles/page.module.scss'
 
@@ -10,12 +11,20 @@ export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const canCreate = hasPermission(PRODUCT.create)
+  const canUpdate = hasPermission(PRODUCT.update)
+  const canDelete = hasPermission(PRODUCT.delete)
 
-  useEffect(() => {
+  function load() {
+    setLoading(true)
     getProductList()
       .then(setProducts)
       .catch((err: Error) => setError(err.message || '商品加载失败'))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    load()
   }, [])
 
   const list = useMemo(
@@ -28,41 +37,48 @@ export default function ProductList() {
     [keyword, products],
   )
 
+  async function onDelete(item: Product) {
+    if (!window.confirm(`确定删除「${item.name}」？`)) return
+    try {
+      await deleteProduct(item.id)
+      setProducts((current) => current.filter((row) => row.id !== item.id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '删除失败')
+    }
+  }
+
   return (
     <section className={styles.page}>
       <div className={styles.head}>
         <div>
           <h1>商品列表</h1>
-          <p>
-            路由：<code className={styles.code}>/</code>
-            （挂到 Host 时是 <code className={styles.code}>/product</code>）
-          </p>
-        </div>
-        {hasPermission('product:create') ? (
-          <Link className={`${styles.btn} ${styles.primary}`} to="create">
-            + 新建商品
-          </Link>
-        ) : null}
-      </div>
-
-      <div className={`${styles.toolbar} ${styles.card}`}>
-        <label className={styles.search}>
-          <span>搜索</span>
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="商品名称 / SKU"
-          />
-        </label>
-        <div className={styles.meta}>
-          共 <b>{list.length}</b> 条
         </div>
       </div>
 
-      <div className={`${styles.card} ${styles.tableCard}`}>
-        {loading ? <p className={styles.empty}>正在加载真实商品数据…</p> : null}
-        {error ? <p className={styles.empty}>{error}</p> : null}
-        <table>
+      <article className={`${styles.card} ${styles.panel}`}>
+        <div className={styles.panelHead}>
+          <h2>商品数据</h2>
+          <div className={styles.panelTools}>
+            <label className={styles.searchInline}>
+              <input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="搜索商品名称 / SKU"
+              />
+            </label>
+            <span className={styles.meta}>共 {list.length} 条</span>
+            {canCreate ? (
+              <Link className={`${styles.btn} ${styles.primary}`} to="create">
+                新建商品
+              </Link>
+            ) : null}
+          </div>
+        </div>
+        <div className={styles.panelBody}>
+          {loading ? <p className={styles.empty}>正在加载…</p> : null}
+          {error ? <p className={styles.bannerError}>{error}</p> : null}
+          {!loading ? (
+        <table className={styles.dataTable}>
           <thead>
             <tr>
               <th>商品</th>
@@ -70,7 +86,7 @@ export default function ProductList() {
               <th>价格</th>
               <th>库存</th>
               <th>状态</th>
-              <th>操作</th>
+              <th className={styles.colActions}>操作</th>
             </tr>
           </thead>
           <tbody>
@@ -92,10 +108,32 @@ export default function ProductList() {
                     {item.status === 'on' ? '上架' : '下架'}
                   </span>
                 </td>
-                <td>
-                  <Link className={styles.link} to={`detail/${item.id}`}>
-                    详情
-                  </Link>
+                <td className={styles.colActions}>
+                  <div className={styles.rowActions}>
+                    <Link className={styles.linkBtn} to={`detail/${item.id}`}>
+                      详情
+                    </Link>
+                    {canUpdate ? (
+                      <>
+                        <span className={styles.actionSep} />
+                        <Link className={styles.linkBtn} to={`edit/${item.id}`}>
+                          编辑
+                        </Link>
+                      </>
+                    ) : null}
+                    {canDelete ? (
+                      <>
+                        <span className={styles.actionSep} />
+                        <button
+                          type="button"
+                          className={`${styles.linkBtn} ${styles.linkDanger}`}
+                          onClick={() => onDelete(item)}
+                        >
+                          删除
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -108,7 +146,9 @@ export default function ProductList() {
             ) : null}
           </tbody>
         </table>
-      </div>
+          ) : null}
+        </div>
+      </article>
     </section>
   )
 }

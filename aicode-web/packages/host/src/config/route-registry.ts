@@ -63,7 +63,7 @@ export const routeRegistry: RouteRegistration[] = [
     key: 'user',
     path: '/user/*',
     name: '用户应用',
-    permission: 'user:profile',
+    permission: 'user:list',
     app: 'user',
     loader: () => import('user_app/App'),
   },
@@ -76,9 +76,11 @@ export const routeMountGuide = routeRegistry
 export const routePermissions = [
   { path: '/', permission: 'dashboard:view' },
   ...ADMIN_IAM_PAGES.map(({ path, permission }) => ({ path, permission })),
-  { path: '/product/create', permission: 'product:create' },
+  { path: '/product/create', permission: 'product:list:create' },
+  { path: '/product/edit/:id', permission: 'product:list:update' },
   { path: '/product/category', permission: 'product:category' },
-  { path: '/product/detail/:id', permission: 'product:view' },
+  { path: '/product/detail/:id', permission: 'product:list' },
   { path: '/product/*', permission: 'product:list' },
-  { path: '/user/*', permission: 'user:profile' },
+  { path: '/user/profile', permission: 'user:profile' },
+  { path: '/user/*', permission: 'user:list' },
 ]

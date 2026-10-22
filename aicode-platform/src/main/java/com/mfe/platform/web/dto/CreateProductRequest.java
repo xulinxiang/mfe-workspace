@@ -20,6 +20,7 @@ public class CreateProductRequest {
   private Integer stock;
 
   private String status = "on";
+  private Long categoryId;
 
   public String getName() {
     return name;
@@ -59,5 +60,13 @@ public class CreateProductRequest {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public Long getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Long categoryId) {
+    this.categoryId = categoryId;
   }
 }

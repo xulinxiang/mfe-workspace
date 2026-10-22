@@ -15,14 +15,13 @@ WHERE tenant_id = 1 AND permission_code = 'dashboard:view';
 -- 补回被删掉的商品页面权限
 INSERT IGNORE INTO permission (code, name, resource_type, parent_code, subsystem_code, sort_order) VALUES
   ('product:view', '查看商品详情', 'page', NULL, 'product', 40),
-  ('product:create', '新建商品', 'action', 'product:list', 'product', 30),
-  ('product:category', '查看商品分类', 'page', NULL, 'product', 20);
+  ('product:list:create', '新建商品', 'action', 'product:list', 'product', 30),
+  ('product:category', '商品分类', 'page', NULL, 'product', 20);
 
 INSERT IGNORE INTO route_catalog (
   subsystem_code, route_key, label, path, permission_code, icon, sort_order
 ) VALUES
   ('product', 'product-category', '商品分类', '/product/category', 'product:category', 'TagsOutlined', 20),
-  ('product', 'product-create', '新建商品', '/product/create', 'product:create', 'PlusOutlined', 30),
   ('product', 'product-detail', '商品详情', '/product/detail/:id', 'product:view', 'ShopOutlined', 40);
 
 -- 商品中心下的演示菜单
@@ -38,20 +37,6 @@ JOIN route_catalog c ON c.route_key = 'product-category'
 WHERE g.tenant_id = 1 AND g.menu_key = 'group-product-hub'
   AND NOT EXISTS (
     SELECT 1 FROM menu_item x WHERE x.tenant_id = 1 AND x.menu_key = 'product-category'
-  );
-
-INSERT INTO menu_item (
-  tenant_id, menu_key, label, path, app_name, icon, permission_code, sort_order,
-  node_type, parent_id, route_catalog_id
-)
-SELECT
-  1, 'product-create', '新建商品', '/product/create', 'product', 'PlusOutlined',
-  'product:create', 30, 'route', g.id, c.id
-FROM menu_item g
-JOIN route_catalog c ON c.route_key = 'product-create'
-WHERE g.tenant_id = 1 AND g.menu_key = 'group-product-hub'
-  AND NOT EXISTS (
-    SELECT 1 FROM menu_item x WHERE x.tenant_id = 1 AND x.menu_key = 'product-create'
   );
 
 UPDATE menu_item SET app_name = 'product', icon = COALESCE(icon, 'FolderOutlined')
@@ -79,6 +64,6 @@ INSERT IGNORE INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
 JOIN permission p ON p.code IN (
-  'dashboard:view', 'product:list', 'product:view', 'product:category', 'user:profile'
+  'dashboard:view', 'product:list', 'product:view', 'product:category', 'user:list', 'user:profile'
 )
 WHERE r.tenant_id = 1 AND r.code = 'viewer';

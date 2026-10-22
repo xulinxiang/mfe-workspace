@@ -1,6 +1,8 @@
+import { hasPermission } from '@aicode/shared/auth'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getProductById } from '@/api/product'
+import { PRODUCT } from '@/permissions'
 import type { Product } from '@/types/product'
 import styles from '@/styles/page.module.scss'
 
@@ -23,7 +25,7 @@ export default function ProductDetail() {
   }, [id])
 
   if (loading) {
-    return <section className={styles.page}>正在加载真实商品数据…</section>
+    return <section className={styles.page}>正在加载…</section>
   }
 
   if (!product) {
@@ -52,9 +54,16 @@ export default function ProductDetail() {
             {product.id}
           </p>
         </div>
-        <Link className={styles.btn} to="..">
-          返回列表
-        </Link>
+        <div className={styles.headActions}>
+          {hasPermission(PRODUCT.update) ? (
+            <Link className={`${styles.btn} ${styles.primary}`} to={`../edit/${product.id}`}>
+              编辑
+            </Link>
+          ) : null}
+          <Link className={styles.btn} to="..">
+            返回列表
+          </Link>
+        </div>
       </div>
 
       <div className={`${styles.card} ${styles.detail}`}>

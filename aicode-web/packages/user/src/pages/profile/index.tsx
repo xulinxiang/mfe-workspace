@@ -1,13 +1,14 @@
 import { hasPermission } from '@aicode/shared/auth'
 import { useEffect, useState } from 'react'
 import { getUserProfile, updateUserProfile } from '@/api/user'
+import { USER } from '@/permissions'
 import type { UserProfile } from '@/types/user'
 import styles from './index.module.scss'
 
 export default function Profile() {
   const [form, setForm] = useState<UserProfile | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-  const canUpdate = hasPermission('user:profile:update')
+  const canUpdate = hasPermission(USER.profileUpdate)
 
   useEffect(() => {
     getUserProfile()

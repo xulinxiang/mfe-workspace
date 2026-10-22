@@ -22,9 +22,6 @@ export default function SideMenu() {
 
   return (
     <nav className={styles.nav}>
-      <p className={styles.navGroup}>
-        主导航{layout === 'flat' ? ' · 平铺' : ' · 分组'}
-      </p>
       {loading ? <p className={styles.navState}>菜单加载中…</p> : null}
       {error ? <p className={styles.navState}>{error}</p> : null}
       {menus.map((item) => (
@@ -39,6 +36,22 @@ export default function SideMenu() {
         />
       ))}
     </nav>
+  )
+}
+
+function MenuGlyph({
+  icon,
+  menuKey,
+  app,
+}: {
+  icon?: string | null
+  menuKey: string
+  app?: string
+}) {
+  return (
+    <span className={styles.menuIcon} aria-hidden>
+      {renderMenuIcon(icon, menuKey, app)}
+    </span>
   )
 }
 
@@ -60,18 +73,20 @@ function MenuEntry({
   if (item.nodeType === 'group' && layout === 'tree') {
     const open = openGroups[item.key] ?? true
     return (
-      <div className={styles.menuGroup} style={{ marginLeft: depth ? depth * 8 : undefined }}>
+      <div className={cx(styles.menuGroup, depth > 0 && styles.menuGroupNested)}>
         <button
           type="button"
           className={styles.groupHead}
           onClick={() => onToggleGroup(item.key)}
           aria-expanded={open}
         >
-          <span>{item.label}</span>
-          <span className={styles.chevron}>{open ? '▾' : '▸'}</span>
+          <MenuGlyph icon={item.icon} menuKey={item.key} app={item.app} />
+          <span className={styles.groupLabel}>{item.label}</span>
+          <i className={cx(styles.chevron, open && styles.chevronOpen)} />
         </button>
-        {open
-          ? item.children?.map((child) => (
+        {open ? (
+          <div className={styles.groupBody}>
+            {item.children?.map((child) => (
               <MenuEntry
                 key={child.key}
                 item={child}
@@ -81,8 +96,9 @@ function MenuEntry({
                 openGroups={openGroups}
                 onToggleGroup={onToggleGroup}
               />
-            ))
-          : null}
+            ))}
+          </div>
+        ) : null}
       </div>
     )
   }
@@ -111,21 +127,11 @@ function MenuEntry({
     <NavLink
       to={item.path}
       end={item.path === '/'}
-      className={cx(
-        styles.item,
-        depth > 0 && styles.itemNested,
-        isActive && styles.active,
-      )}
-      style={depth ? { marginLeft: depth * 10 } : undefined}
+      className={cx(styles.item, depth > 0 && styles.itemNested, isActive && styles.active)}
       aria-current={isActive ? 'page' : undefined}
     >
-      <span className={styles.menuIcon} aria-hidden>
-        {renderMenuIcon(item.icon, item.key, item.app)}
-      </span>
-      <span>{item.label}</span>
-      {item.app && item.app !== 'host' ? (
-        <em className={styles.appTag}>{item.app}</em>
-      ) : null}
+      <MenuGlyph icon={item.icon} menuKey={item.key} app={item.app} />
+      <span className={styles.itemLabel}>{item.label}</span>
     </NavLink>
   )
 }

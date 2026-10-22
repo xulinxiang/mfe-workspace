@@ -35,8 +35,8 @@ function pathMatchesMenuRoute(pathname: string, menuPath: string): boolean {
   return re.test(pathname)
 }
 
-/** 同一 URL 只高亮一条菜单（最长路径优先；路径相同则 sortOrder 更小者优先） */
-export function pickActiveMenuKey(pathname: string, nodes: MenuNode[]): string | null {
+/** 同一 URL 只命中一条菜单（最长路径优先；路径相同则 sortOrder 更小者优先） */
+export function pickActiveMenuRoute(pathname: string, nodes: MenuNode[]): MenuNode | null {
   const routes = flattenMenuRoutes(nodes)
   const candidates = routes.filter((item) => pathMatchesMenuRoute(pathname, item.path))
   if (!candidates.length) return null
@@ -48,7 +48,11 @@ export function pickActiveMenuKey(pathname: string, nodes: MenuNode[]): string |
   const bestLen = candidates[0].path.length
   const tied = candidates.filter((item) => item.path.length === bestLen)
   tied.sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999))
-  return tied[0].key
+  return tied[0]
+}
+
+export function pickActiveMenuKey(pathname: string, nodes: MenuNode[]): string | null {
+  return pickActiveMenuRoute(pathname, nodes)?.key ?? null
 }
 
 export function titleFromMenuTree(path: string, nodes: MenuNode[]): string {

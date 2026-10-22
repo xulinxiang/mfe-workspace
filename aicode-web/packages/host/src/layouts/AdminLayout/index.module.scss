@@ -7,7 +7,7 @@
 }
 
 .sidebar {
-  background: linear-gradient(180deg, $host-sidebar 0%, $host-sidebar-2 100%);
+  background: $host-sidebar;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -24,56 +24,60 @@
   height: $host-header-h;
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0 1rem;
+  gap: 10px;
+  padding: 0 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .brandMark {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: 0.95rem;
-  background: linear-gradient(145deg, #3c9cff, $host-accent);
-  box-shadow: 0 6px 16px rgba(22, 119, 255, 0.35);
+  font-size: 14px;
+  background: $host-accent;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.32);
 }
 
 .brand strong {
   display: block;
-  font-size: 0.98rem;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  font-weight: 650;
 }
 
 .brand p {
-  margin: 0.1rem 0 0;
+  margin: 2px 0 0;
   color: rgba(255, 255, 255, 0.45);
-  font-size: 0.72rem;
+  font-size: 12px;
 }
 
 .nav {
-  display: grid;
-  gap: 4px;
-  padding: 0 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px 16px;
   flex: 1;
-  align-content: start;
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-.navGroup {
-  margin: 1rem 0.35rem 0.4rem;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+.nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
 }
 
 .navState {
-  margin: 0.5rem 0.35rem;
+  margin: 8px 6px;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.75rem;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -82,132 +86,145 @@
   align-items: center;
   justify-content: center;
   width: 18px;
+  height: 18px;
   font-size: 15px;
-  opacity: 0.88;
+  color: inherit;
+  opacity: 0.9;
   flex-shrink: 0;
+  line-height: 1;
 }
 
-.item {
+.menuIcon :global(.anticon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.menuIcon :global(svg) {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+.item,
+.groupHead {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  max-width: 100%;
+  gap: 10px;
+  width: 100%;
   min-width: 0;
-  padding: 0.65rem 0.75rem;
+  height: 40px;
+  padding: 0 10px;
   border-radius: 8px;
   color: $host-sidebar-ink;
-  font-size: 0.92rem;
+  font-size: 14px;
+  line-height: 1;
   text-decoration: none;
-  position: relative;
-  isolation: isolate;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.item span {
+.itemLabel,
+.groupLabel {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.item:hover {
+.item:hover:not(.active),
+.groupHead:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.08);
 }
 
-.active {
+.item:active:not(.active),
+.groupHead:active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.active,
+.active:hover,
+.active:active {
   color: #fff;
   background: $host-accent;
   font-weight: 600;
+  box-shadow: none;
 }
 
 .menuGroup {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menuGroupNested,
+.groupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .groupHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 0.15rem;
-  padding: 0.45rem 0.75rem;
+  margin: 6px 0 0;
   border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.78rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   text-align: left;
 }
 
-.groupHead:hover {
-  background: rgba(255, 255, 255, 0.08);
+.groupHead:first-child,
+.menuGroup:first-child > .groupHead {
+  margin-top: 0;
 }
 
 .chevron {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  opacity: 0.55;
+  flex-shrink: 0;
+  transition: transform 0.16s ease;
+}
+
+.chevronOpen {
+  transform: rotate(45deg);
   opacity: 0.7;
-  font-size: 0.72rem;
 }
 
 .itemNested {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  font-size: 0.86rem;
+  height: 36px;
+  padding-left: 28px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.appTag {
-  margin-left: auto;
-  font-style: normal;
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  padding: 0.08rem 0.4rem;
-}
-
-.active .appTag {
-  color: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.icon {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.18);
-  position: relative;
-  flex-shrink: 0;
-}
-
-.icon::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border-radius: 2px;
-  background: currentColor;
-  opacity: 0.9;
-}
-
-.iconProduct::after {
-  border-radius: 50%;
-}
-
-.iconUser::after {
-  inset: 5px 4px 3px;
-  border-radius: 2px 2px 40% 40%;
+.itemNested .menuIcon {
+  width: 16px;
+  height: 16px;
+  font-size: 13px;
 }
 
 .foot {
-  padding: 0.85rem;
+  padding: 10px 10px 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .userMini {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.45rem 0.5rem;
+  gap: 10px;
+  padding: 8px 10px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
 }

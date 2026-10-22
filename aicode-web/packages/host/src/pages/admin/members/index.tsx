@@ -8,16 +8,8 @@ function MembersPageInner() {
 
   return (
     <AdminPageShell
-      title="成员管理"
-      description="管理本租户登录账号，并通过角色绑定继承权限。页面入口权限 admin:members:view；新建与分配角色为独立按钮权限。"
-      stats={
-        data
-          ? [
-              { label: '成员数', value: data.users.length },
-              { label: '可用角色', value: data.roles.length },
-            ]
-          : undefined
-      }
+      title="租户成员"
+      description="管理当前租户下的登录账号：新建成员、维护资料，并为其分配角色；实际可见菜单与按钮权限由角色决定。"
       loading={loading || !data}
     >
       {data ? <MembersPanel data={data} run={run} notify={notify} /> : null}

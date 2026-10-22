@@ -67,14 +67,18 @@ const BY_KEY: Record<string, ReactNode> = {
   'group-product-hub': <FolderOutlined />,
   'product-list': <UnorderedListOutlined />,
   'product-category': <TagsOutlined />,
-  'product-create': <PlusOutlined />,
   'product-detail': <ShopOutlined />,
+  'group-user-hub': <TeamOutlined />,
+  'user-list': <TeamOutlined />,
+  'user-profile': <UserOutlined />,
   'user-center': <UserOutlined />,
   'group-tenant-admin': <SettingOutlined />,
   'admin-members': <TeamOutlined />,
+  'admin-members-list': <TeamOutlined />,
   'admin-role-manage': <SolutionOutlined />,
   'admin-roles': <SafetyCertificateOutlined />,
   'admin-permissions': <KeyOutlined />,
+  'admin-permissions-view': <KeyOutlined />,
 }
 
 const BY_APP: Record<string, ReactNode> = {

@@ -43,7 +43,10 @@ type CatalogNode = {
   key: string
   kind: 'group' | 'route' | 'action' | 'unplaced'
   title: string
+  /** 纯文案补充（如「未挂侧栏」计数） */
   extra?: string
+  permissionCode?: string | null
+  routePath?: string | null
   icon?: string | null
   menu?: AdminMenuItem
   page?: AdminPermission
@@ -192,6 +195,7 @@ export default function PermissionsPanel({ data, run }: Props) {
           kind: 'group',
           title: item.label,
           extra: item.menuKey,
+          permissionCode: item.menuKey,
           icon: item.icon,
           menu: item,
           children: kids.map((child) => toNode(child, kids)),
@@ -206,7 +210,8 @@ export default function PermissionsPanel({ data, run }: Props) {
         key: `menu-${item.id}`,
         kind: 'route',
         title: item.label,
-        extra: [item.permission, item.path].filter(Boolean).join(' · '),
+        permissionCode: item.permission ?? page?.code ?? null,
+        routePath: item.path || null,
         icon: item.icon,
         menu: item,
         page,
@@ -214,7 +219,7 @@ export default function PermissionsPanel({ data, run }: Props) {
           key: `action-${action.id}`,
           kind: 'action' as const,
           title: action.name,
-          extra: action.code,
+          permissionCode: action.code,
           action,
           children: [],
           parentMenuId: item.id,
@@ -250,7 +255,8 @@ export default function PermissionsPanel({ data, run }: Props) {
             key: `unplaced-${page.id}`,
             kind: 'unplaced' as const,
             title: page.name,
-            extra: [page.code, catalog?.path].filter(Boolean).join(' · '),
+            permissionCode: page.code,
+            routePath: catalog?.path ?? null,
             page,
             children: actions
               .filter((a) => a.parentCode === page.code)
@@ -258,7 +264,7 @@ export default function PermissionsPanel({ data, run }: Props) {
                 key: `action-${action.id}`,
                 kind: 'action' as const,
                 title: action.name,
-                extra: action.code,
+                permissionCode: action.code,
                 action,
                 children: [],
                 parentMenuId: null,
@@ -397,7 +403,7 @@ export default function PermissionsPanel({ data, run }: Props) {
     const values = await pageForm.validateFields()
     const subsystem = values.subsystem || activeSubsystem
     const payload = {
-      code: editingPage ? editingPage.code : composePageCode(pageCodePrefix, values.code),
+      code: composePageCode(pageCodePrefix, values.code),
       name: values.name.trim(),
       resourceType: 'page' as const,
       subsystem,
@@ -434,7 +440,7 @@ export default function PermissionsPanel({ data, run }: Props) {
     if (!actionParentCode) return
     const values = await actionForm.validateFields()
     const payload = {
-      code: editingAction ? editingAction.code : composeActionCode(actionParentCode, values.code),
+      code: composeActionCode(actionParentCode, values.code),
       name: values.name.trim(),
       resourceType: 'action' as const,
       parentCode: actionParentCode,
@@ -523,14 +529,38 @@ export default function PermissionsPanel({ data, run }: Props) {
             {hasKids ? (open ? '▾' : '▸') : '·'}
           </button>
           <span className={styles.treeMain}>
-            <span className={badgeClass}>{badgeText}</span>
-            {node.icon || node.kind === 'group' ? (
-              <span className={styles.pageCardIcon}>
-                {renderMenuIcon(node.icon ?? (node.kind === 'group' ? 'FolderOutlined' : null))}
+            <span className={styles.treeLead}>
+              <span className={badgeClass}>{badgeText}</span>
+              {node.icon || node.kind === 'group' ? (
+                <span className={styles.pageCardIcon}>
+                  {renderMenuIcon(node.icon ?? (node.kind === 'group' ? 'FolderOutlined' : null))}
+                </span>
+              ) : null}
+              <strong className={styles.treeLabel}>{node.title}</strong>
+              {node.routePath ? (
+                <code className={cx(styles.metaTag, styles.metaTagRoute)} title={node.routePath}>
+                  {node.routePath}
+                </code>
+              ) : null}
+            </span>
+            {node.permissionCode || (!node.routePath && node.extra) ? (
+              <span className={styles.treeTags}>
+                {node.permissionCode ? (
+                  <code
+                    className={cx(
+                      styles.metaTag,
+                      node.kind === 'group' ? styles.metaTagKey : styles.metaTagPerm,
+                    )}
+                    title={node.permissionCode}
+                  >
+                    {node.permissionCode}
+                  </code>
+                ) : null}
+                {!node.permissionCode && !node.routePath && node.extra ? (
+                  <span className={styles.treeMeta}>{node.extra}</span>
+                ) : null}
               </span>
             ) : null}
-            <strong>{node.title}</strong>
-            {node.extra ? <span className={styles.treeMeta}>{node.extra}</span> : null}
           </span>
         </div>
         {open
@@ -621,27 +651,29 @@ export default function PermissionsPanel({ data, run }: Props) {
           <h2>子系统</h2>
         </div>
         <div className={cx(styles.panelBody, styles.panelBodyFill)}>
-          <ul className={styles.roleList}>
+          <ul className={styles.subsystemList}>
             {data.subsystems.map((sub) => {
               const count = menus.filter(
                 (item) => item.nodeType !== 'group' && belongsToSubsystem(item, menus, sub.code),
               ).length
+              const icon = subsystemIcons[sub.code as keyof typeof subsystemIcons]
               return (
                 <li
                   key={sub.code}
                   className={cx(
-                    styles.roleItem,
-                    sub.code === activeSubsystem && styles.roleItemActive,
+                    styles.subsystemCard,
+                    sub.code === activeSubsystem && styles.subsystemCardActive,
                   )}
                   onClick={() => setSubsystem(sub.code)}
                 >
-                  <div className={styles.roleItemMain}>
-                    <strong>
-                      {subsystemIcons[sub.code as keyof typeof subsystemIcons] ?? null} {sub.name}
-                    </strong>
-                    <code>{sub.code}</code>
-                    <span className={styles.tagMuted}>{count} 个菜单</span>
+                  <span className={styles.subsystemIcon} aria-hidden>
+                    {icon}
+                  </span>
+                  <div className={styles.subsystemBody}>
+                    <strong>{sub.name}</strong>
+                    <code className={cx(styles.metaTag, styles.metaTagKey)}>{sub.code}</code>
                   </div>
+                  <span className={styles.subsystemCount}>{count} 个菜单</span>
                 </li>
               )
             })}
@@ -736,7 +768,13 @@ export default function PermissionsPanel({ data, run }: Props) {
           {tree.length === 0 ? (
             <p className={styles.hint}>该子系统还没有目录或菜单</p>
           ) : (
-            <div className={styles.treeList}>{tree.map((node) => renderNode(node, 0))}</div>
+            <>
+              <div className={styles.treeColHead} aria-hidden>
+                <span>节点 / 路由</span>
+                <span>权限编码</span>
+              </div>
+              <div className={styles.treeList}>{tree.map((node) => renderNode(node, 0))}</div>
+            </>
           )}
         </div>
       </article>
@@ -789,7 +827,7 @@ export default function PermissionsPanel({ data, run }: Props) {
           <Form.Item
             name="code"
             label="权限码"
-            extra={`只需填后半段，两个子应用都可写 ${pageMount.exampleRest}，完整码不会撞`}
+            extra={`左侧子系统前缀固定。后半段可改，两个子应用都可写 ${pageMount.exampleRest}，完整码不会撞`}
             rules={[
               { required: true, message: '填写资源:操作' },
               {
@@ -800,11 +838,7 @@ export default function PermissionsPanel({ data, run }: Props) {
               },
             ]}
           >
-            <Input
-              addonBefore={pageCodePrefix}
-              placeholder={pageMount.exampleRest}
-              disabled={Boolean(editingPage)}
-            />
+            <Input addonBefore={pageCodePrefix} placeholder={pageMount.exampleRest} />
           </Form.Item>
           <Form.Item name="name" label="显示名称" rules={[{ required: true }]}>
             <Input placeholder="店铺列表" />
@@ -845,7 +879,7 @@ export default function PermissionsPanel({ data, run }: Props) {
           <Form.Item
             name="code"
             label="权限码"
-            extra="前缀已带上所属页面码，这里只填操作名"
+            extra="左侧已带上所属页面码，这里只填操作名，编辑时也可以改"
             rules={[
               { required: true, message: '填写操作名' },
               {
@@ -859,7 +893,6 @@ export default function PermissionsPanel({ data, run }: Props) {
             <Input
               addonBefore={actionParentCode ? `${actionParentCode}:` : undefined}
               placeholder="create"
-              disabled={Boolean(editingAction)}
             />
           </Form.Item>
           <Form.Item name="name" label="名称" rules={[{ required: true }]}>

@@ -6,7 +6,6 @@ import styles from './index.module.scss'
 const LOCAL_MENU = [
   { to: '/', label: '商品列表', end: true },
   { to: '/category', label: '商品分类', end: true },
-  { to: '/create', label: '新建商品', end: true },
 ] as const
 
 type Props = {

@@ -11,7 +11,6 @@ import { useAuth } from '@/context/AuthContext'
 import { cx } from '@/utils/cx'
 import { Modal } from 'antd'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import styles from '../admin.module.scss'
 
 type Props = {
@@ -44,6 +43,19 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
     () => data.roles.find((r) => r.id === activeRoleId) ?? null,
     [data.roles, activeRoleId],
   )
+
+  const pageLabelByCode = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const route of data.routeCatalog) {
+      if (route.permission && route.label) map.set(route.permission, route.label)
+    }
+    for (const menu of data.menus ?? []) {
+      if (menu.permission && menu.label) map.set(menu.permission, menu.label)
+    }
+    return map
+  }, [data.routeCatalog, data.menus])
+
+  const pageLabel = (page: AdminPermission) => pageLabelByCode.get(page.code) ?? page.name
 
   const pagesBySubsystem = useMemo(() => {
     const pages = data.permissions.filter((p) => (p.resourceType ?? 'page') === 'page')
@@ -128,11 +140,10 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
               onChange={(e) => setKeyword(e.target.value)}
             />
           </div>
-          <p className={styles.formTip}>
-            增删改角色请到 <Link to="/admin/role-manage">角色管理</Link>
-          </p>
           <ul className={styles.roleList}>
-            {filteredRoles.map((role) => (
+            {filteredRoles.map((role) => {
+              const permCount = parseIds(role.permissionIds).length
+              return (
               <li
                 key={role.id}
                 className={cx(styles.roleItem, role.id === activeRoleId && styles.roleItemActive)}
@@ -140,13 +151,12 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
               >
                 <div className={styles.roleItemMain}>
                   <strong>{role.name}</strong>
-                  <code>{role.code}</code>
-                  <span className={styles.tagMuted}>
-                    {parseIds(role.permissionIds).length} 项权限
-                  </span>
+                  <code className={cx(styles.metaTag, styles.metaTagKey)}>{role.code}</code>
                 </div>
+                <span className={styles.roleItemCount}>{permCount} 项权限</span>
               </li>
-            ))}
+              )
+            })}
           </ul>
           {filteredRoles.length === 0 ? <p className={styles.hint}>没有匹配的角色</p> : null}
         </div>
@@ -198,7 +208,7 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
                               onChange={() => togglePage(page, actions)}
                             />
                             <span className={styles.badgePage}>页面</span>
-                            <strong>{page.name}</strong>
+                            <strong>{pageLabel(page)}</strong>
                           </label>
                           <code className={styles.permCode}>{page.code}</code>
                           <div className={styles.pageCardFoot}>
@@ -234,7 +244,7 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
       <Modal
         title={
           actionModalGroup
-            ? `按钮权限 · ${actionModalGroup.page.name}`
+            ? `按钮权限 · ${pageLabel(actionModalGroup.page)}`
             : '按钮权限'
         }
         open={actionModalGroup != null}

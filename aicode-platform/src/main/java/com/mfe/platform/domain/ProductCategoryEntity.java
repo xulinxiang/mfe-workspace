@@ -46,4 +46,24 @@ public class ProductCategoryEntity {
   public Integer getSortOrder() {
     return sortOrder;
   }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setTenantId(Long tenantId) {
+    this.tenantId = tenantId;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
 }

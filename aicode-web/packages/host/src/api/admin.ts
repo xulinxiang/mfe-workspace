@@ -4,6 +4,7 @@ export type AdminUser = {
   id: number
   email: string
   name: string
+  phone?: string | null
   roleLabel: string
   roleIds: string | number | null
 }
@@ -124,6 +125,25 @@ export function createUser(payload: CreateUserPayload) {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+}
+
+export type UpdateUserPayload = {
+  email: string
+  password?: string
+  name: string
+  phone?: string
+  roleIds: number[]
+}
+
+export function updateUser(id: number, payload: UpdateUserPayload) {
+  return apiRequest<null>(`/api/admin/users/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function deleteUser(id: number) {
+  return apiRequest<null>(`/api/admin/users/${id}`, { method: 'DELETE' })
 }
 
 export type PermissionPayload = {

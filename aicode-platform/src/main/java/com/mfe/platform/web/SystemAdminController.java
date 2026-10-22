@@ -6,6 +6,7 @@ import com.mfe.platform.rbac.RequireAnyPermission;
 import com.mfe.platform.rbac.RequirePermission;
 import com.mfe.platform.tenant.TenantContext;
 import com.mfe.platform.web.dto.AdminCreateUserRequest;
+import com.mfe.platform.web.dto.AdminUpdateUserRequest;
 import com.mfe.platform.web.dto.AdminMenuRequest;
 import com.mfe.platform.web.dto.AdminPermissionRequest;
 import com.mfe.platform.web.dto.AdminRoleRequest;
@@ -63,7 +64,7 @@ public class SystemAdminController {
     data.put(
         "users",
         jdbc.queryForList(
-            "SELECT u.id, u.email, u.name, u.role_label AS roleLabel, "
+            "SELECT u.id, u.email, u.name, u.phone, u.role_label AS roleLabel, "
                 + "GROUP_CONCAT(ur.role_id ORDER BY ur.role_id) AS roleIds "
                 + "FROM app_user u LEFT JOIN user_role ur ON ur.user_id=u.id "
                 + "WHERE u.tenant_id=? GROUP BY u.id ORDER BY u.id",
@@ -164,6 +165,13 @@ public class SystemAdminController {
             id);
       }
       if (oldCode != null && !oldCode.equals(fields.code)) {
+        jdbc.update(
+            "UPDATE permission SET code=CONCAT(?, SUBSTRING(code, CHAR_LENGTH(?)+1)) "
+                + "WHERE parent_code=? AND code LIKE ?",
+            fields.code,
+            oldCode,
+            oldCode,
+            oldCode + ":%");
         jdbc.update("UPDATE permission SET parent_code=? WHERE parent_code=?", fields.code, oldCode);
         jdbc.update(
             "UPDATE menu_item SET permission_code=? WHERE permission_code=?", fields.code, oldCode);
@@ -383,7 +391,7 @@ public class SystemAdminController {
             tenantId,
             email);
     if (exists != null && exists > 0) {
-      throw new BusinessException(409, "该租户下邮箱已存在");
+      throw new BusinessException(409, "该租户下账号已存在");
     }
     String roleLabel = resolveRoleLabel(request.getRoleIds(), tenantId);
     jdbc.update(
@@ -403,6 +411,72 @@ public class SystemAdminController {
     for (Long roleId : request.getRoleIds()) {
       jdbc.update("INSERT INTO user_role(user_id,role_id) VALUES(?,?)", userId, roleId);
     }
+    return ApiResponse.ok(null);
+  }
+
+  @PutMapping("/users/{id}")
+  @Transactional
+  @RequirePermission(MEMBER_CREATE)
+  public ApiResponse<Void> updateUser(
+      @PathVariable("id") Long userId, @Valid @RequestBody AdminUpdateUserRequest request) {
+    requireUser(userId);
+    Long tenantId = TenantContext.getTenantId();
+    String email = request.getEmail().trim().toLowerCase();
+    Integer exists =
+        jdbc.queryForObject(
+            "SELECT COUNT(*) FROM app_user WHERE tenant_id=? AND email=? AND id<>?",
+            Integer.class,
+            tenantId,
+            email,
+            userId);
+    if (exists != null && exists > 0) {
+      throw new BusinessException(409, "该租户下账号已存在");
+    }
+    String password = request.getPassword() == null ? "" : request.getPassword().trim();
+    if (!password.isEmpty() && password.length() < 6) {
+      throw new BusinessException(400, "密码至少 6 位");
+    }
+    if (!password.isEmpty()) {
+      jdbc.update(
+          "UPDATE app_user SET email=?, name=?, phone=?, password_hash=? WHERE id=? AND tenant_id=?",
+          email,
+          request.getName().trim(),
+          blankToNull(request.getPhone()),
+          passwordEncoder.encode(password),
+          userId,
+          tenantId);
+    } else {
+      jdbc.update(
+          "UPDATE app_user SET email=?, name=?, phone=? WHERE id=? AND tenant_id=?",
+          email,
+          request.getName().trim(),
+          blankToNull(request.getPhone()),
+          userId,
+          tenantId);
+    }
+    validateIds("role", request.getRoleIds(), tenantId);
+    jdbc.update("DELETE FROM user_role WHERE user_id=?", userId);
+    for (Long roleId : request.getRoleIds()) {
+      jdbc.update("INSERT INTO user_role(user_id,role_id) VALUES(?,?)", userId, roleId);
+    }
+    jdbc.update(
+        "UPDATE app_user SET role_label=? WHERE id=?",
+        resolveRoleLabel(request.getRoleIds(), tenantId),
+        userId);
+    return ApiResponse.ok(null);
+  }
+
+  @DeleteMapping("/users/{id}")
+  @Transactional
+  @RequirePermission(MEMBER_CREATE)
+  public ApiResponse<Void> deleteUser(@PathVariable("id") Long userId) {
+    requireUser(userId);
+    if (userId.equals(TenantContext.getUserId())) {
+      throw new BusinessException(400, "不能删除当前登录账号");
+    }
+    jdbc.update("DELETE FROM user_role WHERE user_id=?", userId);
+    jdbc.update(
+        "DELETE FROM app_user WHERE id=? AND tenant_id=?", userId, TenantContext.getTenantId());
     return ApiResponse.ok(null);
   }
 

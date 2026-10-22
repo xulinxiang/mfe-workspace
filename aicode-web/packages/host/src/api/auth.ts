@@ -2,9 +2,9 @@ import { apiRequest } from '@/api/client'
 import type { AuthSession } from '@/utils/auth-storage'
 
 export type LoginPayload = {
-  tenantCode: string
   email: string
   password: string
+  tenantCode?: string
 }
 
 type LoginResult = Omit<AuthSession, 'roles' | 'permissions'>
