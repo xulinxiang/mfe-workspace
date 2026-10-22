@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS menu_item (
   label VARCHAR(128) NOT NULL,
   path VARCHAR(255) NOT NULL,
   app_name VARCHAR(32) DEFAULT NULL,
+  icon VARCHAR(64) DEFAULT NULL,
   permission_code VARCHAR(128) DEFAULT NULL,
   sort_order INT NOT NULL DEFAULT 0,
   node_type VARCHAR(16) NOT NULL DEFAULT 'route',
@@ -89,7 +90,8 @@ CREATE TABLE IF NOT EXISTS permission (
   name VARCHAR(128) NOT NULL,
   resource_type VARCHAR(16) NOT NULL DEFAULT 'page',
   parent_code VARCHAR(128) DEFAULT NULL,
-  subsystem_code VARCHAR(32) DEFAULT NULL
+  subsystem_code VARCHAR(32) DEFAULT NULL,
+  sort_order INT NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS user_role (
@@ -136,13 +138,14 @@ INSERT INTO subsystem (code, name, sort_order) VALUES
 INSERT INTO route_catalog (subsystem_code, route_key, label, path, permission_code, sort_order) VALUES
   ('host', 'dashboard', '工作台', '/', 'dashboard:view', 10),
   ('host', 'admin-members', '成员管理', '/admin/members', 'admin:members:view', 91),
-  ('host', 'admin-roles', '角色与权限', '/admin/roles', 'admin:roles:view', 92),
-  ('host', 'admin-permissions', '权限目录', '/admin/permissions', 'admin:permissions:view', 93),
+  ('host', 'admin-roles', '角色与权限', '/admin/roles', 'admin:roles:view', 93),
+  ('host', 'admin-permissions', '权限目录', '/admin/permissions', 'admin:permissions:view', 94),
   ('product', 'product-list', '商品列表', '/product', 'product:list', 10),
   ('product', 'product-category', '商品分类', '/product/category', 'product:category', 20),
   ('product', 'product-create', '新建商品', '/product/create', 'product:create', 30),
   ('product', 'product-detail', '商品详情', '/product/detail/:id', 'product:view', 40),
-  ('user', 'user-profile', '用户中心', '/user', 'user:profile', 10);
+  ('user', 'user-profile', '用户中心', '/user', 'user:profile', 10),
+  ('host', 'admin-role-manage', '角色管理', '/admin/role-manage', 'admin:role-manage:view', 92);
 
 INSERT INTO tenant (id, code, name, menu_layout) VALUES
   (1, 'demo', '演示租户', 'tree'),
@@ -180,6 +183,7 @@ INSERT INTO menu_item (tenant_id, menu_key, label, path, app_name, permission_co
   (1, 'user-center', '用户中心', '/user', 'user', 'user:profile', 50, 'route', NULL, 9),
   (1, 'group-tenant-admin', '租户治理', '#', NULL, NULL, 88, 'group', NULL, NULL),
   (1, 'admin-members', '成员管理', '/admin/members', 'host', 'admin:members:view', 10, 'route', 7, 2),
+  (1, 'admin-role-manage', '角色管理', '/admin/role-manage', 'host', 'admin:role-manage:view', 15, 'route', 7, 10),
   (1, 'admin-roles', '角色与权限', '/admin/roles', 'host', 'admin:roles:view', 20, 'route', 7, 3),
   (1, 'admin-permissions', '权限目录', '/admin/permissions', 'host', 'admin:permissions:view', 30, 'route', 7, 4),
   (2, 'dashboard', '工作台', '/', 'host', 'dashboard:view', 10, 'route', NULL, 1),
@@ -198,13 +202,19 @@ INSERT INTO permission (id, code, name, resource_type, parent_code, subsystem_co
   (9, 'admin:members:create', '新建成员', 'action', 'admin:members:view', 'host'),
   (10, 'admin:members:assign-role', '分配角色', 'action', 'admin:members:view', 'host'),
   (11, 'admin:roles:view', '角色与权限', 'page', NULL, 'host'),
-  (12, 'admin:roles:create', '新建角色', 'action', 'admin:roles:view', 'host'),
-  (13, 'admin:roles:delete', '删除角色', 'action', 'admin:roles:view', 'host'),
+  (12, 'admin:roles:create', '新建角色', 'action', 'admin:role-manage:view', 'host'),
+  (13, 'admin:roles:delete', '删除角色', 'action', 'admin:role-manage:view', 'host'),
   (14, 'admin:roles:assign-permissions', '配置权限矩阵', 'action', 'admin:roles:view', 'host'),
+  (19, 'admin:role-manage:view', '角色管理', 'page', NULL, 'host'),
+  (20, 'admin:roles:update', '编辑角色', 'action', 'admin:role-manage:view', 'host'),
   (15, 'admin:permissions:view', '权限目录', 'page', NULL, 'host'),
   (16, 'admin:permissions:create', '新建权限', 'action', 'admin:permissions:view', 'host'),
   (17, 'admin:permissions:update', '编辑权限', 'action', 'admin:permissions:view', 'host'),
   (18, 'admin:permissions:delete', '删除权限', 'action', 'admin:permissions:view', 'host');
+
+UPDATE permission p
+LEFT JOIN route_catalog r ON r.permission_code = p.code
+SET p.sort_order = COALESCE(r.sort_order, p.id * 10);
 
 INSERT INTO role (id, tenant_id, code, name) VALUES
   (1, 1, 'admin', '管理员'),
@@ -219,7 +229,7 @@ INSERT INTO user_role (user_id, role_id) VALUES
 INSERT INTO role_permission (role_id, permission_id) VALUES
   (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7),
   (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14),
-  (1, 15), (1, 16), (1, 17), (1, 18),
+  (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20),
   (2, 1), (2, 2), (2, 3), (2, 5), (2, 6),
   (3, 1), (3, 2), (3, 3), (3, 6);
 

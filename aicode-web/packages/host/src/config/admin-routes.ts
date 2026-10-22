@@ -10,6 +10,13 @@ export const ADMIN_IAM_PAGES = [
     menuKey: 'admin-members',
   },
   {
+    key: 'admin-role-manage',
+    path: '/admin/role-manage',
+    name: '角色管理',
+    permission: ADMIN.roleManage.view,
+    menuKey: 'admin-role-manage',
+  },
+  {
     key: 'admin-roles',
     path: '/admin/roles',
     name: '角色与权限',

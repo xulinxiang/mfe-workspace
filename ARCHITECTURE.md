@@ -65,12 +65,13 @@
 | 菜单 | 路由 | 页面权限 | 典型按钮权限 |
 |------|------|----------|--------------|
 | 成员管理 | `/admin/members` | `admin:members:view` | `create`、`assign-role` |
-| 角色与权限 | `/admin/roles` | `admin:roles:view` | `create`、`delete`、`assign-permissions` |
-| 权限目录 | `/admin/permissions` | `admin:permissions:view` | `create`（含 path/icon，同步侧栏）、`update`、`delete` |
+| 角色管理 | `/admin/role-manage` | `admin:role-manage:view` | `create`、`update`、`delete` |
+| 角色与权限 | `/admin/roles` | `admin:roles:view` | `assign-permissions` |
+| 权限目录 | `/admin/permissions` | `admin:permissions:view` | `create`（目录/菜单/按钮，菜单含 path/icon 同步侧栏）、`update`、`delete`、同级排序 |
 
 配置：`packages/host/src/config/admin-permissions.ts`（与 DB、`SystemAdminController` 一致）。
 
-已有库执行：`migrate-admin-iam.sql`、`migrate-admin-permissions-catalog.sql`。
+已有库执行：`migrate-admin-iam.sql`、`migrate-admin-permissions-catalog.sql`、`migrate-role-manage.sql`、`migrate-menu-tree.sql`。
 
 ## 多租户
 

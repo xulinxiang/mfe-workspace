@@ -1,10 +1,13 @@
+import { useMenus } from '@/context/MenuContext'
 import type { ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
 import styles from './admin.module.scss'
 
 type Stat = { label: string; value: string | number }
 
 type Props = {
-  title: string
+  /** 菜单未匹配到时的兜底标题 */
+  title?: string
   description?: string
   stats?: Stat[]
   loading?: boolean
@@ -12,6 +15,11 @@ type Props = {
 }
 
 export default function AdminPageShell({ title, description, stats, loading, children }: Props) {
+  const { pathname } = useLocation()
+  const { titleForPath } = useMenus()
+  const menuTitle = titleForPath(pathname)
+  const heading = menuTitle && menuTitle !== '页面' ? menuTitle : title ?? menuTitle
+
   if (loading) {
     return <p className={styles.loading}>加载中…</p>
   }
@@ -20,7 +28,7 @@ export default function AdminPageShell({ title, description, stats, loading, chi
     <section className={styles.page}>
       <header className={styles.head}>
         <div>
-          <h1>{title}</h1>
+          <h1>{heading}</h1>
           {description ? <p>{description}</p> : null}
         </div>
       </header>

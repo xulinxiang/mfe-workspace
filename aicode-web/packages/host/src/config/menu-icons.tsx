@@ -10,6 +10,7 @@ import {
   PlusOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
+  SolutionOutlined,
   ShopOutlined,
   TagsOutlined,
   TeamOutlined,
@@ -37,6 +38,7 @@ export const MENU_ICON_OPTIONS: { value: string; label: string }[] = [
   { value: 'CloudOutlined', label: '云' },
   { value: 'KeyOutlined', label: '权限' },
   { value: 'SafetyCertificateOutlined', label: '安全' },
+  { value: 'SolutionOutlined', label: '角色' },
 ]
 
 const ICON_BY_NAME: Record<string, ComponentType> = {
@@ -44,6 +46,7 @@ const ICON_BY_NAME: Record<string, ComponentType> = {
   HomeOutlined,
   KeyOutlined,
   SafetyCertificateOutlined,
+  SolutionOutlined,
   UnorderedListOutlined,
   TagsOutlined,
   PlusOutlined,
@@ -69,6 +72,7 @@ const BY_KEY: Record<string, ReactNode> = {
   'user-center': <UserOutlined />,
   'group-tenant-admin': <SettingOutlined />,
   'admin-members': <TeamOutlined />,
+  'admin-role-manage': <SolutionOutlined />,
   'admin-roles': <SafetyCertificateOutlined />,
   'admin-permissions': <KeyOutlined />,
 }

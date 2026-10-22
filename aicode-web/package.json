@@ -8,6 +8,7 @@
     "libs/*"
   ],
   "scripts": {
+    "predev": "node scripts/free-dev-ports.mjs 5000 5001 5002",
     "dev": "concurrently -n host,product,user -c blue,green,magenta \"npm run dev -w @mfe/host\" \"npm run dev -w @mfe/product\" \"npm run dev -w @mfe/user\"",
     "dev:host": "npm run dev -w @mfe/host",
     "dev:product": "npm run dev -w @mfe/product",

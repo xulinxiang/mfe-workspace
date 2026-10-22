@@ -8,10 +8,14 @@ export const ADMIN = {
     create: 'admin:members:create',
     assignRole: 'admin:members:assign-role',
   },
+  roleManage: {
+    view: 'admin:role-manage:view',
+    create: 'admin:roles:create',
+    update: 'admin:roles:update',
+    delete: 'admin:roles:delete',
+  },
   roles: {
     view: 'admin:roles:view',
-    create: 'admin:roles:create',
-    delete: 'admin:roles:delete',
     assignPermissions: 'admin:roles:assign-permissions',
   },
   permissions: {
@@ -24,6 +28,7 @@ export const ADMIN = {
 
 export const ADMIN_PAGE_PERMISSIONS = [
   ADMIN.members.view,
+  ADMIN.roleManage.view,
   ADMIN.roles.view,
   ADMIN.permissions.view,
 ] as const

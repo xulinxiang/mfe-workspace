@@ -22,6 +22,21 @@ export type AdminPermission = {
   subsystem?: string | null
   resourceType?: 'page' | 'action' | string | null
   parentCode?: string | null
+  sortOrder?: number | null
+}
+
+export type AdminMenuItem = {
+  id: number
+  menuKey: string
+  label: string
+  path: string
+  app?: string | null
+  icon?: string | null
+  permission?: string | null
+  nodeType: 'route' | 'group' | string
+  parentId?: number | null
+  routeCatalogId?: number | null
+  sortOrder: number
 }
 
 export type SubsystemEntry = {
@@ -47,6 +62,7 @@ export type AdminBootstrap = {
   permissions: AdminPermission[]
   subsystems: SubsystemEntry[]
   routeCatalog: RouteCatalogEntry[]
+  menus?: AdminMenuItem[]
 }
 
 export type RolePayload = Pick<AdminRole, 'code' | 'name'>
@@ -119,6 +135,20 @@ export type PermissionPayload = {
   /** 页面权限：同步写入 route_catalog + 当前租户侧栏 */
   path?: string | null
   icon?: string | null
+  parentMenuId?: number | null
+  sortOrder?: number | null
+}
+
+export type MenuPayload = {
+  key?: string
+  label: string
+  path?: string | null
+  app?: string | null
+  permission?: string | null
+  icon?: string | null
+  nodeType: 'group' | 'route'
+  parentId?: number | null
+  sortOrder?: number | null
 }
 
 export function createPermission(payload: PermissionPayload) {
@@ -137,4 +167,36 @@ export function updatePermission(id: number, payload: PermissionPayload) {
 
 export function deletePermission(id: number) {
   return apiRequest<null>(`/api/admin/permissions/${id}`, { method: 'DELETE' })
+}
+
+export function reorderPermissions(orderedIds: number[]) {
+  return apiRequest<null>('/api/admin/permission-order', {
+    method: 'PUT',
+    body: JSON.stringify({ orderedIds }),
+  })
+}
+
+export function createMenu(payload: MenuPayload) {
+  return apiRequest<null>('/api/admin/menus', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function updateMenu(id: number, payload: MenuPayload) {
+  return apiRequest<null>(`/api/admin/menus/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function deleteMenu(id: number) {
+  return apiRequest<null>(`/api/admin/menus/${id}`, { method: 'DELETE' })
+}
+
+export function reorderMenus(parentId: number | null, orderedIds: number[]) {
+  return apiRequest<null>('/api/admin/menu-order', {
+    method: 'PUT',
+    body: JSON.stringify({ parentId, orderedIds }),
+  })
 }

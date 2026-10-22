@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node ../../scripts/free-dev-ports.mjs 5000",
     "dev": "vite --port 5000 --strictPort",
     "build": "vite build",
     "preview": "vite preview --port 5000 --strictPort"

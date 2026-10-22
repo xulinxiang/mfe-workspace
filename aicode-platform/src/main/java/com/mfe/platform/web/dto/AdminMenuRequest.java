@@ -1,12 +1,10 @@
 package com.mfe.platform.web.dto;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class AdminMenuRequest {
 
-  @NotBlank
   @Size(max = 64)
   private String key;
 
@@ -14,7 +12,8 @@ public class AdminMenuRequest {
   @Size(max = 128)
   private String label;
 
-  @NotBlank private String path;
+  @Size(max = 255)
+  private String path;
 
   @Size(max = 32)
   private String app;
@@ -22,7 +21,16 @@ public class AdminMenuRequest {
   @Size(max = 128)
   private String permission;
 
-  @NotNull private Integer sortOrder;
+  @Size(max = 64)
+  private String icon;
+
+  /** group | route */
+  @Size(max = 16)
+  private String nodeType;
+
+  private Long parentId;
+
+  private Integer sortOrder;
 
   public String getKey() {
     return key;
@@ -62,6 +70,30 @@ public class AdminMenuRequest {
 
   public void setPermission(String permission) {
     this.permission = permission;
+  }
+
+  public String getIcon() {
+    return icon;
+  }
+
+  public void setIcon(String icon) {
+    this.icon = icon;
+  }
+
+  public String getNodeType() {
+    return nodeType;
+  }
+
+  public void setNodeType(String nodeType) {
+    this.nodeType = nodeType;
+  }
+
+  public Long getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(Long parentId) {
+    this.parentId = parentId;
   }
 
   public Integer getSortOrder() {

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node -e \"if (Number(process.versions.node.split('.')[0]) < 18) { console.error('请先执行: nvm use 20'); process.exit(1) }\"",
+    "predev": "node -e \"if (Number(process.versions.node.split('.')[0]) < 18) { console.error('请先执行: nvm use 20'); process.exit(1) }\" && node ../../scripts/free-dev-ports.mjs 5002",
     "dev": "vite build && concurrently -k --raw \"vite build --watch\" \"vite preview --port 5002 --strictPort\"",
     "build": "vite build",
     "preview": "vite preview --port 5002 --strictPort"

@@ -32,6 +32,12 @@ public class AdminPermissionRequest {
   @Size(max = 64)
   private String icon;
 
+  /** 页面权限：挂到该目录下（menu_item.id，null 表示侧栏根级） */
+  private Long parentMenuId;
+
+  /** 同级排序，缺省则追加到末尾 */
+  private Integer sortOrder;
+
   public String getCode() {
     return code;
   }
@@ -86,5 +92,21 @@ public class AdminPermissionRequest {
 
   public void setIcon(String icon) {
     this.icon = icon;
+  }
+
+  public Long getParentMenuId() {
+    return parentMenuId;
+  }
+
+  public void setParentMenuId(Long parentMenuId) {
+    this.parentMenuId = parentMenuId;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 }

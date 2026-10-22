@@ -12,7 +12,6 @@ export function useAdminWorkspace() {
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
-    setLoading(true)
     try {
       setData(await fetchAdminBootstrap())
     } catch (error) {

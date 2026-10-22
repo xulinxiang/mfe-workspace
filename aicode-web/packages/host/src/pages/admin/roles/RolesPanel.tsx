@@ -1,8 +1,5 @@
 import {
-  createRole,
-  deleteRole,
   parseIds,
-  updateRole,
   updateRolePermissions,
   type AdminBootstrap,
   type AdminPermission,
@@ -14,6 +11,7 @@ import { useAuth } from '@/context/AuthContext'
 import { cx } from '@/utils/cx'
 import { Modal } from 'antd'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import styles from '../admin.module.scss'
 
 type Props = {
@@ -31,8 +29,16 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
   const { hasPermission } = useAuth()
   const canEditMatrix = hasPermission(ADMIN.roles.assignPermissions)
   const [activeRoleId, setActiveRoleId] = useState<number | null>(data.roles[0]?.id ?? null)
-  const [newRole, setNewRole] = useState({ code: '', name: '' })
+  const [keyword, setKeyword] = useState('')
   const [actionPageCode, setActionPageCode] = useState<string | null>(null)
+
+  const filteredRoles = useMemo(() => {
+    const q = keyword.trim().toLowerCase()
+    if (!q) return data.roles
+    return data.roles.filter(
+      (role) => role.name.toLowerCase().includes(q) || role.code.toLowerCase().includes(q),
+    )
+  }, [data.roles, keyword])
 
   const activeRole = useMemo(
     () => data.roles.find((r) => r.id === activeRoleId) ?? null,
@@ -112,37 +118,21 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
     <div className={styles.splitFill}>
       <article className={cx(styles.panel, styles.panelFill)}>
         <div className={styles.panelHead}>
-          <h2>角色列表</h2>
+          <h2>选择角色</h2>
         </div>
         <div className={cx(styles.panelBody, styles.panelBodyFill)}>
-          <Can permission={ADMIN.roles.create}>
-            <div className={styles.inlineForm}>
-              <input
-                placeholder="编码"
-                value={newRole.code}
-                onChange={(e) => setNewRole({ ...newRole, code: e.target.value })}
-              />
-              <input
-                placeholder="名称"
-                value={newRole.name}
-                onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
-              />
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                onClick={() =>
-                  run(async () => {
-                    await createRole(newRole)
-                    setNewRole({ code: '', name: '' })
-                  }, '角色已创建')
-                }
-              >
-                新增
-              </button>
-            </div>
-          </Can>
+          <div className={styles.inlineForm}>
+            <input
+              placeholder="搜索编码 / 名称"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
+          <p className={styles.formTip}>
+            增删改角色请到 <Link to="/admin/role-manage">角色管理</Link>
+          </p>
           <ul className={styles.roleList}>
-            {data.roles.map((role) => (
+            {filteredRoles.map((role) => (
               <li
                 key={role.id}
                 className={cx(styles.roleItem, role.id === activeRoleId && styles.roleItemActive)}
@@ -155,21 +145,10 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
                     {parseIds(role.permissionIds).length} 项权限
                   </span>
                 </div>
-                <Can permission={ADMIN.roles.delete}>
-                  <button
-                    type="button"
-                    className={styles.btnDanger}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      run(() => deleteRole(role.id), '角色已删除')
-                    }}
-                  >
-                    删除
-                  </button>
-                </Can>
               </li>
             ))}
           </ul>
+          {filteredRoles.length === 0 ? <p className={styles.hint}>没有匹配的角色</p> : null}
         </div>
       </article>
 
@@ -177,44 +156,21 @@ export default function RolesPanel({ data, run, onDataChange }: Props) {
         <div className={styles.panelHead}>
           <h2>{activeRole ? `页面权限 · ${activeRole.name}` : '页面权限'}</h2>
           {activeRole && canEditMatrix ? (
-            <div className={styles.inlineForm} style={{ marginBottom: 0 }}>
-              <input
-                value={activeRole.code}
-                onChange={(e) =>
-                  onDataChange({
-                    ...data,
-                    roles: data.roles.map((r) =>
-                      r.id === activeRole.id ? { ...r, code: e.target.value } : r,
-                    ),
-                  })
+            <Can permission={ADMIN.roles.assignPermissions}>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                onClick={() =>
+                  run(
+                    () =>
+                      updateRolePermissions(activeRole.id, parseIds(activeRole.permissionIds)),
+                    '权限已保存',
+                  )
                 }
-              />
-              <input
-                value={activeRole.name}
-                onChange={(e) =>
-                  onDataChange({
-                    ...data,
-                    roles: data.roles.map((r) =>
-                      r.id === activeRole.id ? { ...r, name: e.target.value } : r,
-                    ),
-                  })
-                }
-              />
-              <Can permission={ADMIN.roles.assignPermissions}>
-                <button
-                  type="button"
-                  className={styles.btnPrimary}
-                  onClick={() =>
-                    run(async () => {
-                      await updateRole(activeRole.id, activeRole)
-                      await updateRolePermissions(activeRole.id, parseIds(activeRole.permissionIds))
-                    }, '已保存')
-                  }
-                >
-                  保存
-                </button>
-              </Can>
-            </div>
+              >
+                保存权限
+              </button>
+            </Can>
           ) : null}
         </div>
         <div className={cx(styles.panelBody, styles.panelBodyScroll)}>

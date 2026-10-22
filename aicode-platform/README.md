@@ -37,8 +37,12 @@ curl http://localhost:8080/api/health
 | PUT | `/api/user/profile` | `user:profile:update` | 修改名称与手机号 |
 | GET | `/api/admin/bootstrap` | 任一 `admin:*:view` | 治理页初始化数据 |
 | POST/PUT | `/api/admin/users/**` | `admin:members:create` / `assign-role` | 成员与角色绑定 |
-| POST/PUT/DELETE | `/api/admin/roles/**` | `admin:roles:*` | 角色与权限矩阵 |
-| POST/PUT/DELETE | `/api/admin/permissions` | `admin:permissions:*` | 权限目录（页面含 path/icon，同步 route_catalog + 侧栏） |
+| POST/PUT/DELETE | `/api/admin/roles` | `admin:roles:create` / `update` / `delete` | 角色增删改 |
+| PUT | `/api/admin/roles/{id}/permissions` | `admin:roles:assign-permissions` | 角色权限矩阵 |
+| POST/PUT/DELETE | `/api/admin/permissions` | `admin:permissions:*` | 权限目录（页面含 path/icon/parentMenuId，同步 route_catalog + 侧栏） |
+| PUT | `/api/admin/permission-order` | `admin:permissions:update` | 按钮/页面权限排序 |
+| POST/PUT/DELETE | `/api/admin/menus` | `admin:permissions:*` | 侧栏目录（可嵌套 group）与挂载 |
+| PUT | `/api/admin/menu-order` | `admin:permissions:update` | 同级菜单排序 / 移入目录 |
 
 请求头（除 login / health 外）：
 

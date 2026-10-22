@@ -3,6 +3,7 @@ import { ADMIN_IAM_PAGES } from '@/config/admin-routes'
 import Dashboard from '@/pages/dashboard'
 import LegacyAdminRedirect from '@/pages/admin/LegacyAdminRedirect'
 import AdminMembersPage from '@/pages/admin/members'
+import AdminRoleManagePage from '@/pages/admin/role-manage'
 import AdminRolesPage from '@/pages/admin/roles'
 import AdminPermissionsPage from '@/pages/admin/permissions'
 
@@ -10,6 +11,7 @@ type RemoteModule = { default: ComponentType }
 
 const ADMIN_PAGE_COMPONENTS: Record<string, ComponentType> = {
   'admin-members': AdminMembersPage,
+  'admin-role-manage': AdminRoleManagePage,
   'admin-roles': AdminRolesPage,
   'admin-permissions': AdminPermissionsPage,
 }

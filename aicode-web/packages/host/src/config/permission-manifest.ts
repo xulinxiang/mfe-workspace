@@ -14,9 +14,26 @@ export const hostPermissionManifest: SubsystemPermissionManifest = {
       kind: 'action',
       parentCode: ADMIN.members.view,
     },
+    { code: ADMIN.roleManage.view, name: '角色管理', kind: 'page' },
+    {
+      code: ADMIN.roleManage.create,
+      name: '新建角色',
+      kind: 'action',
+      parentCode: ADMIN.roleManage.view,
+    },
+    {
+      code: ADMIN.roleManage.update,
+      name: '编辑角色',
+      kind: 'action',
+      parentCode: ADMIN.roleManage.view,
+    },
+    {
+      code: ADMIN.roleManage.delete,
+      name: '删除角色',
+      kind: 'action',
+      parentCode: ADMIN.roleManage.view,
+    },
     { code: ADMIN.roles.view, name: '角色与权限', kind: 'page' },
-    { code: ADMIN.roles.create, name: '新建角色', kind: 'action', parentCode: ADMIN.roles.view },
-    { code: ADMIN.roles.delete, name: '删除角色', kind: 'action', parentCode: ADMIN.roles.view },
     {
       code: ADMIN.roles.assignPermissions,
       name: '配置权限矩阵',

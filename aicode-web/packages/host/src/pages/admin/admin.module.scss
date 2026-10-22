@@ -167,6 +167,11 @@
   border-bottom: none;
 }
 
+.table td button + button,
+.table td .btnDanger {
+  margin-left: 0.35rem;
+}
+
 .userCell strong {
   display: block;
   font-size: 0.9rem;
@@ -544,6 +549,92 @@
   border-radius: 4px;
   background: #f6ffed;
   color: #389e0d;
+}
+
+.badgeGroup {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: #fff7e6;
+  color: #d46b08;
+}
+
+.treeHeadActions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.treeList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.treeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  padding: 0.28rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.treeRow:hover {
+  background: #f5f8ff;
+}
+
+.treeRowActive {
+  border-color: $host-accent;
+  background: $host-accent-soft;
+}
+
+.treeToggle {
+  flex: none;
+  width: 1.2rem;
+  border: none;
+  background: transparent;
+  color: $host-muted;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.treeMain {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.treeMain strong {
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.treeMeta {
+  color: $host-muted;
+  font-family: $host-mono;
+  font-size: 0.68rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.treeActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.1rem;
+}
+
+.btnLink:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .menuTreeList {

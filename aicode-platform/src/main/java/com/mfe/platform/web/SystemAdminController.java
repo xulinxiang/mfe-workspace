@@ -6,13 +6,16 @@ import com.mfe.platform.rbac.RequireAnyPermission;
 import com.mfe.platform.rbac.RequirePermission;
 import com.mfe.platform.tenant.TenantContext;
 import com.mfe.platform.web.dto.AdminCreateUserRequest;
+import com.mfe.platform.web.dto.AdminMenuRequest;
 import com.mfe.platform.web.dto.AdminPermissionRequest;
 import com.mfe.platform.web.dto.AdminRoleRequest;
 import com.mfe.platform.web.dto.IdsRequest;
+import com.mfe.platform.web.dto.ReorderRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.dao.DuplicateKeyException;
@@ -34,8 +37,10 @@ public class SystemAdminController {
   private static final String MEMBER_VIEW = "admin:members:view";
   private static final String MEMBER_CREATE = "admin:members:create";
   private static final String MEMBER_ASSIGN = "admin:members:assign-role";
+  private static final String ROLE_MANAGE_VIEW = "admin:role-manage:view";
   private static final String ROLE_VIEW = "admin:roles:view";
   private static final String ROLE_CREATE = "admin:roles:create";
+  private static final String ROLE_UPDATE = "admin:roles:update";
   private static final String ROLE_DELETE = "admin:roles:delete";
   private static final String ROLE_ASSIGN = "admin:roles:assign-permissions";
   private static final String PERM_VIEW = "admin:permissions:view";
@@ -51,7 +56,7 @@ public class SystemAdminController {
   }
 
   @GetMapping("/bootstrap")
-  @RequireAnyPermission({MEMBER_VIEW, ROLE_VIEW, PERM_VIEW})
+  @RequireAnyPermission({MEMBER_VIEW, ROLE_MANAGE_VIEW, ROLE_VIEW, PERM_VIEW})
   public ApiResponse<Map<String, Object>> bootstrap() {
     Long tenantId = TenantContext.getTenantId();
     Map<String, Object> data = new LinkedHashMap<>();
@@ -75,7 +80,8 @@ public class SystemAdminController {
         "permissions",
         jdbc.queryForList(
             "SELECT id, code, name, subsystem_code AS subsystem, resource_type AS resourceType, "
-                + "parent_code AS parentCode FROM permission ORDER BY subsystem_code, resource_type, id"));
+                + "parent_code AS parentCode, sort_order AS sortOrder FROM permission "
+                + "ORDER BY subsystem_code, resource_type, sort_order, id"));
     data.put(
         "subsystems",
         jdbc.queryForList("SELECT code, name, sort_order AS sortOrder FROM subsystem ORDER BY sort_order"));
@@ -85,6 +91,14 @@ public class SystemAdminController {
             "SELECT id, subsystem_code AS subsystem, route_key AS routeKey, label, path, icon, "
                 + "permission_code AS permission, sort_order AS sortOrder "
                 + "FROM route_catalog ORDER BY subsystem_code, sort_order, id"));
+    data.put(
+        "menus",
+        jdbc.queryForList(
+            "SELECT id, menu_key AS menuKey, label, path, app_name AS app, icon, "
+                + "permission_code AS permission, sort_order AS sortOrder, node_type AS nodeType, "
+                + "parent_id AS parentId, route_catalog_id AS routeCatalogId "
+                + "FROM menu_item WHERE tenant_id=? ORDER BY sort_order, id",
+            tenantId));
     return ApiResponse.ok(data);
   }
 
@@ -93,16 +107,19 @@ public class SystemAdminController {
   @RequirePermission(PERM_CREATE)
   public ApiResponse<Void> createPermission(@Valid @RequestBody AdminPermissionRequest request) {
     PermissionFields fields = resolvePermissionFields(request);
+    fields.parentMenuId = request.getParentMenuId();
+    fields.sortOrder = request.getSortOrder() == null ? nextPermissionSort(fields) : request.getSortOrder();
     String path = normalizePagePath(request.getPath(), fields.resourceType);
     String icon = blankToNull(request.getIcon());
     try {
       jdbc.update(
-          "INSERT INTO permission(code,name,resource_type,parent_code,subsystem_code) VALUES(?,?,?,?,?)",
+          "INSERT INTO permission(code,name,resource_type,parent_code,subsystem_code,sort_order) VALUES(?,?,?,?,?,?)",
           fields.code,
           fields.name,
           fields.resourceType,
           fields.parentCode,
-          fields.subsystem);
+          fields.subsystem,
+          fields.sortOrder);
       if ("page".equals(fields.resourceType) && path != null) {
         upsertPageRouteAndMenu(fields, path, icon);
       }
@@ -121,17 +138,31 @@ public class SystemAdminController {
     String oldCode =
         jdbc.queryForObject("SELECT code FROM permission WHERE id=?", String.class, id);
     PermissionFields fields = resolvePermissionFields(request);
+    fields.parentMenuId = request.getParentMenuId();
+    fields.sortOrder = request.getSortOrder();
     String path = normalizePagePath(request.getPath(), fields.resourceType);
     String icon = blankToNull(request.getIcon());
     try {
-      jdbc.update(
-          "UPDATE permission SET code=?, name=?, resource_type=?, parent_code=?, subsystem_code=? WHERE id=?",
-          fields.code,
-          fields.name,
-          fields.resourceType,
-          fields.parentCode,
-          fields.subsystem,
-          id);
+      if (fields.sortOrder != null) {
+        jdbc.update(
+            "UPDATE permission SET code=?, name=?, resource_type=?, parent_code=?, subsystem_code=?, sort_order=? WHERE id=?",
+            fields.code,
+            fields.name,
+            fields.resourceType,
+            fields.parentCode,
+            fields.subsystem,
+            fields.sortOrder,
+            id);
+      } else {
+        jdbc.update(
+            "UPDATE permission SET code=?, name=?, resource_type=?, parent_code=?, subsystem_code=? WHERE id=?",
+            fields.code,
+            fields.name,
+            fields.resourceType,
+            fields.parentCode,
+            fields.subsystem,
+            id);
+      }
       if (oldCode != null && !oldCode.equals(fields.code)) {
         jdbc.update("UPDATE permission SET parent_code=? WHERE parent_code=?", fields.code, oldCode);
         jdbc.update(
@@ -154,16 +185,118 @@ public class SystemAdminController {
   public ApiResponse<Void> deletePermission(@PathVariable("id") Long id) {
     requirePermissionRow(id);
     String code = jdbc.queryForObject("SELECT code FROM permission WHERE id=?", String.class, id);
-    Integer childCount =
-        jdbc.queryForObject(
-            "SELECT COUNT(*) FROM permission WHERE parent_code=?", Integer.class, code);
-    if (childCount != null && childCount > 0) {
-      throw new BusinessException(409, "请先删除该页面下的操作权限");
+    List<Long> childIds =
+        jdbc.queryForList("SELECT id FROM permission WHERE parent_code=?", Long.class, code);
+    for (Long childId : childIds) {
+      jdbc.update("DELETE FROM role_permission WHERE permission_id=?", childId);
     }
+    jdbc.update("DELETE FROM permission WHERE parent_code=?", code);
     jdbc.update("DELETE FROM menu_item WHERE permission_code=?", code);
     jdbc.update("DELETE FROM route_catalog WHERE permission_code=?", code);
     jdbc.update("DELETE FROM role_permission WHERE permission_id=?", id);
     jdbc.update("DELETE FROM permission WHERE id=?", id);
+    return ApiResponse.ok(null);
+  }
+
+  @PutMapping("/permission-order")
+  @Transactional
+  @RequirePermission(PERM_UPDATE)
+  public ApiResponse<Void> reorderPermissions(@Valid @RequestBody ReorderRequest request) {
+    int sort = 10;
+    for (Long id : request.getOrderedIds()) {
+      requirePermissionRow(id);
+      jdbc.update("UPDATE permission SET sort_order=? WHERE id=?", sort, id);
+      sort += 10;
+    }
+    return ApiResponse.ok(null);
+  }
+
+  @PostMapping("/menus")
+  @Transactional
+  @RequirePermission(PERM_CREATE)
+  public ApiResponse<Void> createMenu(@Valid @RequestBody AdminMenuRequest request) {
+    insertMenu(resolveMenuFields(request, true));
+    return ApiResponse.ok(null);
+  }
+
+  @PutMapping("/menus/{id}")
+  @Transactional
+  @RequirePermission(PERM_UPDATE)
+  public ApiResponse<Void> updateMenu(
+      @PathVariable("id") Long id, @Valid @RequestBody AdminMenuRequest request) {
+    Map<String, Object> row = requireMenuRow(id);
+    MenuFields fields = resolveMenuFields(request, false);
+    if ("route".equals(String.valueOf(row.get("node_type"))) && "group".equals(fields.nodeType)) {
+      throw new BusinessException(400, "菜单不能改成目录");
+    }
+    assertNotDescendant(id, fields.parentId);
+    try {
+      jdbc.update(
+          "UPDATE menu_item SET menu_key=?, label=?, path=?, app_name=?, icon=?, permission_code=?, "
+              + "sort_order=?, node_type=?, parent_id=? WHERE id=? AND tenant_id=?",
+          fields.key,
+          fields.label,
+          fields.path,
+          fields.app,
+          fields.icon,
+          fields.permission,
+          fields.sortOrder != null ? fields.sortOrder : ((Number) row.get("sort_order")).intValue(),
+          fields.nodeType,
+          fields.parentId,
+          id,
+          TenantContext.getTenantId());
+      return ApiResponse.ok(null);
+    } catch (DuplicateKeyException ex) {
+      throw new BusinessException(409, "侧栏菜单标识已存在");
+    }
+  }
+
+  @DeleteMapping("/menus/{id}")
+  @Transactional
+  @RequirePermission(PERM_DELETE)
+  public ApiResponse<Void> deleteMenu(@PathVariable("id") Long id) {
+    Map<String, Object> row = requireMenuRow(id);
+    if (!"group".equals(String.valueOf(row.get("node_type")))) {
+      throw new BusinessException(400, "页面菜单请用删除权限；目录才能在此删除");
+    }
+    Integer childCount =
+        jdbc.queryForObject(
+            "SELECT COUNT(*) FROM menu_item WHERE parent_id=? AND tenant_id=?",
+            Integer.class,
+            id,
+            TenantContext.getTenantId());
+    if (childCount != null && childCount > 0) {
+      throw new BusinessException(409, "请先删除或移出该目录下的菜单");
+    }
+    jdbc.update(
+        "DELETE FROM menu_item WHERE id=? AND tenant_id=?", id, TenantContext.getTenantId());
+    return ApiResponse.ok(null);
+  }
+
+  @PutMapping("/menu-order")
+  @Transactional
+  @RequirePermission(PERM_UPDATE)
+  public ApiResponse<Void> reorderMenus(@Valid @RequestBody ReorderRequest request) {
+    Long tenantId = TenantContext.getTenantId();
+    Long parentId = request.getParentId();
+    if (parentId != null) {
+      Map<String, Object> parent = requireMenuRow(parentId);
+      if (!"group".equals(String.valueOf(parent.get("node_type")))) {
+        throw new BusinessException(400, "只能挂到目录下");
+      }
+    }
+    int sort = 10;
+    for (Long id : request.getOrderedIds()) {
+      requireMenuRow(id);
+      assertNotDescendant(id, parentId);
+      jdbc.update(
+          "UPDATE menu_item SET parent_id=?, sort_order=? WHERE id=? AND tenant_id=?",
+          parentId,
+          sort,
+          id,
+          tenantId);
+      sort += 10;
+    }
     return ApiResponse.ok(null);
   }
 
@@ -183,7 +316,7 @@ public class SystemAdminController {
   }
 
   @PutMapping("/roles/{id}")
-  @RequirePermission(ROLE_ASSIGN)
+  @RequirePermission(ROLE_UPDATE)
   public ApiResponse<Void> updateRole(
       @PathVariable("id") Long id, @Valid @RequestBody AdminRoleRequest request) {
     requireRole(id);
@@ -449,6 +582,16 @@ public class SystemAdminController {
               "SELECT id FROM route_catalog WHERE permission_code=?", Long.class, fields.code);
     }
 
+    Long tenantId = TenantContext.getTenantId();
+    Long parentId = fields.parentMenuId;
+    if (parentId != null) {
+      Map<String, Object> parent = requireMenuRow(parentId);
+      if (!"group".equals(String.valueOf(parent.get("node_type")))) {
+        throw new BusinessException(400, "只能挂到目录下");
+      }
+    }
+    int menuSort = nextMenuSort(tenantId, parentId);
+
     jdbc.update(
         "UPDATE menu_item SET path=?, label=?, app_name=?, icon=?, permission_code=? WHERE route_catalog_id=?",
         path,
@@ -458,7 +601,6 @@ public class SystemAdminController {
         fields.code,
         catalogId);
 
-    Long tenantId = TenantContext.getTenantId();
     Integer menuExists =
         jdbc.queryForObject(
             "SELECT COUNT(*) FROM menu_item WHERE tenant_id=? AND (route_catalog_id=? OR permission_code=?)",
@@ -469,7 +611,7 @@ public class SystemAdminController {
     if (menuExists != null && menuExists > 0) {
       jdbc.update(
           "UPDATE menu_item SET menu_key=?, label=?, path=?, app_name=?, icon=?, permission_code=?, "
-              + "route_catalog_id=?, node_type='route' WHERE tenant_id=? AND (route_catalog_id=? OR permission_code=?)",
+              + "route_catalog_id=?, node_type='route', parent_id=? WHERE tenant_id=? AND (route_catalog_id=? OR permission_code=?)",
           routeKey,
           fields.name,
           path,
@@ -477,18 +619,13 @@ public class SystemAdminController {
           icon,
           fields.code,
           catalogId,
+          parentId,
           tenantId,
           catalogId,
           fields.code);
       return;
     }
 
-    Integer maxMenuSort =
-        jdbc.queryForObject(
-            "SELECT COALESCE(MAX(sort_order), 0) FROM menu_item WHERE tenant_id=? AND parent_id IS NULL",
-            Integer.class,
-            tenantId);
-    int menuSort = (maxMenuSort == null ? 0 : maxMenuSort) + 10;
     try {
       jdbc.update(
           "INSERT INTO menu_item(tenant_id, menu_key, label, path, app_name, icon, permission_code, "
@@ -502,8 +639,149 @@ public class SystemAdminController {
           fields.code,
           menuSort,
           "route",
-          null,
+          parentId,
           catalogId);
+    } catch (DuplicateKeyException ex) {
+      throw new BusinessException(409, "侧栏菜单标识已存在");
+    }
+  }
+
+  private int nextPermissionSort(PermissionFields fields) {
+    if ("action".equals(fields.resourceType)) {
+      Integer max =
+          jdbc.queryForObject(
+              "SELECT COALESCE(MAX(sort_order), 0) FROM permission WHERE parent_code=?",
+              Integer.class,
+              fields.parentCode);
+      return (max == null ? 0 : max) + 10;
+    }
+    Integer max =
+        jdbc.queryForObject(
+            "SELECT COALESCE(MAX(sort_order), 0) FROM permission WHERE subsystem_code=? AND resource_type='page'",
+            Integer.class,
+            fields.subsystem);
+    return (max == null ? 0 : max) + 10;
+  }
+
+  private int nextMenuSort(Long tenantId, Long parentId) {
+    Integer max;
+    if (parentId == null) {
+      max =
+          jdbc.queryForObject(
+              "SELECT COALESCE(MAX(sort_order), 0) FROM menu_item WHERE tenant_id=? AND parent_id IS NULL",
+              Integer.class,
+              tenantId);
+    } else {
+      max =
+          jdbc.queryForObject(
+              "SELECT COALESCE(MAX(sort_order), 0) FROM menu_item WHERE tenant_id=? AND parent_id=?",
+              Integer.class,
+              tenantId,
+              parentId);
+    }
+    return (max == null ? 0 : max) + 10;
+  }
+
+  private Map<String, Object> requireMenuRow(Long id) {
+    List<Map<String, Object>> rows =
+        jdbc.queryForList(
+            "SELECT id, menu_key, label, path, app_name, icon, permission_code, sort_order, node_type, parent_id "
+                + "FROM menu_item WHERE id=? AND tenant_id=?",
+            id,
+            TenantContext.getTenantId());
+    if (rows.isEmpty()) {
+      throw new BusinessException(404, "菜单不存在或不属于当前租户");
+    }
+    return rows.get(0);
+  }
+
+  private void assertNotDescendant(Long nodeId, Long newParentId) {
+    Long cursor = newParentId;
+    int guard = 0;
+    while (cursor != null && guard < 32) {
+      guard += 1;
+      if (cursor.equals(nodeId)) {
+        throw new BusinessException(400, "不能把目录移到自己的子级下");
+      }
+      List<Map<String, Object>> rows =
+          jdbc.queryForList(
+              "SELECT parent_id FROM menu_item WHERE id=? AND tenant_id=?",
+              cursor,
+              TenantContext.getTenantId());
+      if (rows.isEmpty()) {
+        return;
+      }
+      Object parent = rows.get(0).get("parent_id");
+      cursor = parent == null ? null : ((Number) parent).longValue();
+    }
+  }
+
+  private MenuFields resolveMenuFields(AdminMenuRequest request, boolean creating) {
+    MenuFields fields = new MenuFields();
+    String nodeType = blankToNull(request.getNodeType());
+    fields.nodeType = nodeType == null ? "group" : nodeType.trim().toLowerCase();
+    if (!"group".equals(fields.nodeType) && !"route".equals(fields.nodeType)) {
+      throw new BusinessException(400, "nodeType 只能是 group 或 route");
+    }
+    fields.label = request.getLabel().trim();
+    fields.app = blankToNull(request.getApp());
+    fields.icon = blankToNull(request.getIcon());
+    fields.permission = blankToNull(request.getPermission());
+    fields.parentId = request.getParentId();
+    fields.sortOrder = request.getSortOrder();
+    if ("group".equals(fields.nodeType)) {
+      fields.path = "#";
+      fields.permission = null;
+      String requested = blankToNull(request.getKey());
+      fields.key =
+          requested != null
+              ? requested
+              : "group-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+    } else {
+      String path = blankToNull(request.getPath());
+      if (path == null || !path.startsWith("/")) {
+        throw new BusinessException(400, "菜单必须填写以 / 开头的 path");
+      }
+      fields.path = path;
+      String requested = blankToNull(request.getKey());
+      fields.key = requested != null ? requested : fields.path.replace('/', '-').replaceAll("^-", "");
+    }
+    if (fields.parentId != null) {
+      Map<String, Object> parent = requireMenuRow(fields.parentId);
+      if (!"group".equals(String.valueOf(parent.get("node_type")))) {
+        throw new BusinessException(400, "只能挂到目录下");
+      }
+    }
+    if (fields.app != null) {
+      Integer sub =
+          jdbc.queryForObject(
+              "SELECT COUNT(*) FROM subsystem WHERE code=?", Integer.class, fields.app);
+      if (sub == null || sub == 0) {
+        throw new BusinessException(400, "子系统不存在");
+      }
+    }
+    if (creating && fields.sortOrder == null) {
+      fields.sortOrder = nextMenuSort(TenantContext.getTenantId(), fields.parentId);
+    }
+    return fields;
+  }
+
+  private void insertMenu(MenuFields fields) {
+    try {
+      jdbc.update(
+          "INSERT INTO menu_item(tenant_id, menu_key, label, path, app_name, icon, permission_code, "
+              + "sort_order, node_type, parent_id, route_catalog_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+          TenantContext.getTenantId(),
+          fields.key,
+          fields.label,
+          fields.path,
+          fields.app,
+          fields.icon,
+          fields.permission,
+          fields.sortOrder,
+          fields.nodeType,
+          fields.parentId,
+          null);
     } catch (DuplicateKeyException ex) {
       throw new BusinessException(409, "侧栏菜单标识已存在");
     }
@@ -515,6 +793,20 @@ public class SystemAdminController {
     private String resourceType;
     private String parentCode;
     private String subsystem;
+    private Long parentMenuId;
+    private Integer sortOrder;
+  }
+
+  private static class MenuFields {
+    private String key;
+    private String label;
+    private String path;
+    private String app;
+    private String icon;
+    private String permission;
+    private String nodeType;
+    private Long parentId;
+    private Integer sortOrder;
   }
 
   private String blankToNull(String value) {

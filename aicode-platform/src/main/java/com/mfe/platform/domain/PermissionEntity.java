@@ -30,6 +30,9 @@ public class PermissionEntity {
   @Column(name = "parent_code", length = 128)
   private String parentCode;
 
+  @Column(name = "sort_order", nullable = false)
+  private Integer sortOrder = 0;
+
   public Long getId() {
     return id;
   }
@@ -52,5 +55,13 @@ public class PermissionEntity {
 
   public String getParentCode() {
     return parentCode;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 }
