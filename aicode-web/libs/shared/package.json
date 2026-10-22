@@ -1,0 +1,11 @@
+{
+  "name": "@aicode/shared",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./auth": "./src/auth.ts",
+    "./permissions": "./src/permissions.ts"
+  }
+}

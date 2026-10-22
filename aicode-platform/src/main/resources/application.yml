@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aicode-platform-api
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/mfe?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+
+mfe:
+  jwt:
+    secret: mfe-demo-jwt-secret-change-in-production-32chars
+    expire-hours: 72
+  cors:
+    allowed-origins:
+      - http://localhost:5000
+      - http://localhost:5001
+      - http://localhost:5002
+
+logging:
+  level:
+    com.mfe: INFO

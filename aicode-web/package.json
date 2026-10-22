@@ -1,0 +1,24 @@
+{
+  "name": "aicode-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Aicode 运营控制台（微前端：Vite + Module Federation）",
+  "workspaces": [
+    "packages/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n host,product,user -c blue,green,magenta \"npm run dev -w @mfe/host\" \"npm run dev -w @mfe/product\" \"npm run dev -w @mfe/user\"",
+    "dev:host": "npm run dev -w @mfe/host",
+    "dev:product": "npm run dev -w @mfe/product",
+    "dev:user": "npm run dev -w @mfe/user",
+    "build": "npm run build -w @mfe/product && npm run build -w @mfe/user && npm run build -w @mfe/host",
+    "preview": "concurrently -n host,product,user -c blue,green,magenta \"npm run preview -w @mfe/host\" \"npm run preview -w @mfe/product\" \"npm run preview -w @mfe/user\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

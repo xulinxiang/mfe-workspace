@@ -1,0 +1,7 @@
+@use './tokens' as *;
+
+.root {
+  font-family: $font;
+  color: $ink;
+  min-width: 0;
+}

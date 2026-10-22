@@ -1,0 +1,20 @@
+/* Host 设计变量：只挂在基座根节点上，避免污染子应用 */
+$host-bg: #f0f2f5;
+$host-card: #ffffff;
+$host-ink: #1f2329;
+$host-muted: #646a73;
+$host-line: #e5e6eb;
+$host-line-soft: #f0f1f2;
+$host-sidebar: #001529;
+$host-sidebar-2: #000c17;
+$host-sidebar-ink: rgba(255, 255, 255, 0.75);
+$host-accent: #1677ff;
+$host-accent-soft: #e6f4ff;
+$host-success: #00a870;
+$host-danger: #d54941;
+$host-radius: 8px;
+$host-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px rgba(0, 0, 0, 0.04);
+$host-font: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$host-mono: 'JetBrains Mono', ui-monospace, monospace;
+$host-sidebar-w: 232px;
+$host-header-h: 56px;

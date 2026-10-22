@@ -1,0 +1,21 @@
+.DS_Store
+
+# Local MySQL / Maven / logs (keep start-dev.sh)
+.tools/*
+!.tools/start-dev.sh
+
+# Node
+node_modules
+dist
+.vite
+*.local
+
+# Java
+target/
+*.class
+.idea/
+*.iml
+
+# Process leftovers
+*.log
+*.pid

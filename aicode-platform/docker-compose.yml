@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mfe-mysql57
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mfe
+    ports:
+      - "3306:3306"
+    volumes:
+      - mfe_mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_general_ci
+
+volumes:
+  mfe_mysql_data:

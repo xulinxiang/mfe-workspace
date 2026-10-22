@@ -1,0 +1,36 @@
+@use '../../styles/tokens' as *;
+
+.page {
+  min-height: 55vh;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  text-align: center;
+  padding: 2.5rem;
+}
+
+.code {
+  margin: 0;
+  color: $host-accent;
+  font-family: $host-mono;
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.card h1 {
+  margin: 1rem 0 0.5rem;
+  color: $host-ink;
+}
+
+.card p {
+  color: $host-muted;
+}
+
+.link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: $host-accent;
+  text-decoration: none;
+}

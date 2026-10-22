@@ -1,0 +1,164 @@
+@use '../../styles/tokens' as *;
+
+.page {
+  min-width: 0;
+}
+
+.head {
+  margin-bottom: 1rem;
+}
+
+.head h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.head p {
+  margin: 0.35rem 0 0;
+  color: $host-muted;
+  font-size: 0.9rem;
+}
+
+.errorBanner {
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: $host-radius;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: $host-danger;
+  font-size: 0.85rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.stat {
+  background: $host-card;
+  border: 1px solid $host-line;
+  border-radius: $host-radius;
+  box-shadow: $host-shadow;
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: $host-accent;
+}
+
+.stat p {
+  margin: 0;
+  color: $host-muted;
+  font-size: 0.82rem;
+}
+
+.stat strong {
+  display: block;
+  margin: 0.35rem 0 0.15rem;
+  font-size: 1.65rem;
+  letter-spacing: -0.03em;
+}
+
+.stat span {
+  color: #8a9199;
+  font-size: 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 0.85rem;
+}
+
+.panel {
+  background: $host-card;
+  border: 1px solid $host-line;
+  border-radius: $host-radius;
+  box-shadow: $host-shadow;
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.panel h3 {
+  margin: 0 0 0.85rem;
+  font-size: 0.98rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.list li {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $host-line-soft;
+}
+
+.list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.list b {
+  font-size: 0.92rem;
+}
+
+.list span {
+  color: $host-muted;
+  font-size: 0.85rem;
+}
+
+.links {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid $host-line;
+  border-radius: 8px;
+  background: #fafafa;
+  color: $host-ink;
+  font-weight: 500;
+  text-decoration: none;
+  transition: 0.15s ease;
+}
+
+.link:hover {
+  border-color: #91caff;
+  background: $host-accent-soft;
+  color: $host-accent;
+}
+
+@media (max-width: 960px) {
+  .stats,
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .stats,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

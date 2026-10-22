@@ -1,0 +1,22 @@
+{
+  "name": "@aicode/pro-ui",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Ant Design Pro 可选封装（与 packages 子系统分离）",
+  "exports": {
+    ".": "./src/index.ts",
+    "./provider": "./src/AppProProvider.tsx",
+    "./menu-pro": "./src/menu-pro.ts"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.5.2",
+    "@ant-design/pro-components": "^2.8.2",
+    "antd": "^5.22.5",
+    "dayjs": "^1.11.13"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,125 @@
+@use '../../styles/tokens' as *;
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(22, 119, 255, 0.18), transparent),
+    $host-bg;
+  font-family: $host-font;
+}
+
+.card {
+  width: min(420px, 100%);
+  background: $host-card;
+  border: 1px solid $host-line;
+  border-radius: 12px;
+  box-shadow: $host-shadow, 0 12px 40px rgba(31, 35, 41, 0.08);
+  padding: 2rem 2rem 1.75rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(145deg, #3c9cff, $host-accent);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: $host-ink;
+}
+
+.brand p {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: $host-muted;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $host-ink;
+}
+
+.field input {
+  height: 40px;
+  padding: 0 0.75rem;
+  border: 1px solid $host-line;
+  border-radius: $host-radius;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field input:focus {
+  border-color: $host-accent;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: $host-radius;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: $host-danger;
+  font-size: 0.85rem;
+}
+
+.submit {
+  width: 100%;
+  height: 42px;
+  margin-top: 0.25rem;
+  border: none;
+  border-radius: $host-radius;
+  background: $host-accent;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin: 1.25rem 0 0;
+  font-size: 0.8rem;
+  color: $host-muted;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.hint code {
+  font-family: $host-mono;
+  font-size: 0.78rem;
+  background: $host-line-soft;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
