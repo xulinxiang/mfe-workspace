@@ -46,7 +46,7 @@ export default function FormModal({
             ×
           </button>
         </div>
-        <form className={styles.modalForm} onSubmit={onSubmit}>
+        <form className={styles.modalForm} onSubmit={onSubmit} autoComplete="off">
           {children}
           {error ? <p className={styles.formError}>{error}</p> : null}
           <div className={styles.modalFooter}>

@@ -134,7 +134,47 @@
   color: $host-accent;
   font-size: 0.82rem;
   cursor: pointer;
-  padding: 0.2rem 0.35rem;
+  padding: 0;
+  font: inherit;
+  text-decoration: none;
+}
+
+.btnLink:hover {
+  text-decoration: underline;
+}
+
+.btnLinkDanger {
+  border: none;
+  background: transparent;
+  color: $host-danger;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.btnLinkDanger:hover {
+  text-decoration: underline;
+}
+
+.btnLinkDanger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tableRowActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.tableActionSep {
+  width: 1px;
+  height: 12px;
+  margin: 0 0.45rem;
+  background: $host-line-soft;
+  flex-shrink: 0;
 }
 
 .btnDanger {
@@ -421,7 +461,32 @@
   gap: 0.75rem;
 }
 
-.actionCheckList {
+.actionModalToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+}
+
+.actionModalHint {
+  font-size: 0.75rem;
+  color: $host-muted;
+  line-height: 1.4;
+}
+
+.actionModalToolbarActions {
+  display: flex;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+.actionModalToolbar .btnGhost {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.permCheckList {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -429,10 +494,25 @@
   gap: 0.55rem;
 }
 
-.actionCheckList li {
+.permCheckItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
   padding: 0.55rem 0.65rem;
   border: 1px solid $host-line-soft;
   border-radius: 8px;
+  background: #fff;
+}
+
+.permCheckItemSelected {
+  border-color: #91caff;
+  background: #fafcff;
+}
+
+.permCheckName {
+  font-weight: 600;
+  color: $host-ink;
 }
 
 @media (max-width: 960px) {
@@ -606,15 +686,179 @@
   font-size: 0.82rem;
 }
 
-.matrixSection {
-  margin-bottom: 1.25rem;
+.matrixToolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
 }
 
-.matrixTitle {
-  margin: 0 0 0.5rem;
-  font-size: 0.82rem;
+.matrixTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.matrixTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 32px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid $host-line-soft;
+  background: #fff;
   color: $host-muted;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+}
+
+.matrixTab:hover {
+  border-color: #c9cdd4;
+  color: $host-ink;
+}
+
+.matrixTabActive {
+  border-color: #91caff;
+  background: $host-accent-soft;
+  color: $host-accent;
   font-weight: 600;
+}
+
+.matrixSearchRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.matrixSearch {
+  flex: 1;
+  min-width: 12rem;
+  height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid $host-line;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+
+.matrixSearchMeta {
+  font-size: 0.75rem;
+  color: $host-muted;
+  white-space: nowrap;
+}
+
+.matrixBoard {
+  border: 1px solid $host-line;
+  border-radius: $host-radius;
+  background: #fff;
+  box-shadow: $host-shadow;
+}
+
+.matrixBoardInner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.matrixSubBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.matrixSubHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0 0.15rem 0.35rem;
+  border-bottom: 1px solid $host-line-soft;
+}
+
+.matrixSubHeadTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $host-ink;
+}
+
+.matrixBranch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.matrixPageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.65rem;
+}
+
+.matrixPageCard {
+  padding: 0.75rem 0.85rem 0.8rem;
+  gap: 0.4rem;
+}
+
+.matrixPageCard:hover {
+  transform: none;
+}
+
+.matrixNoAction {
+  font-size: 0.72rem;
+  color: #b0b5bd;
+  margin-top: 0.05rem;
+}
+
+.matrixFolderHead {
+  width: calc(100% - 0.5rem);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.15rem;
+  margin-bottom: 0.15rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: $host-muted;
+}
+
+.matrixFolderHead:hover .matrixFolderLabel {
+  color: $host-ink;
+}
+
+.matrixFolderToggle {
+  flex: none;
+  width: 0.85rem;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.matrixFolderIcon {
+  display: inline-flex;
+  color: #939aa3;
+  font-size: 0.9rem;
+}
+
+.matrixFolderLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #4e5969;
+}
+
+.matrixFolderMeta {
+  font-size: 0.72rem;
+  color: $host-muted;
 }
 
 .permRow {
@@ -635,9 +879,15 @@
 .permLabel {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
   font-size: 0.82rem;
   cursor: pointer;
+}
+
+.permCheckItem .permLabel {
+  flex: 1;
+  min-width: 0;
 }
 
 .permCode {

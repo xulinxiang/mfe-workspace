@@ -12,8 +12,18 @@ import Can from '@/components/Can'
 import { ADMIN } from '@/config/admin-permissions'
 import { useAuth } from '@/context/AuthContext'
 import { Checkbox, Form, Input, Modal, Popconfirm } from 'antd'
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import styles from '../admin.module.scss'
+
+function joinTableActions(actions: ReactNode[]) {
+  const visible = actions.filter((node) => node != null && node !== false)
+  return visible.map((node, index) => (
+    <Fragment key={index}>
+      {index > 0 ? <span className={styles.tableActionSep} /> : null}
+      {node}
+    </Fragment>
+  ))
+}
 
 type MemberForm = CreateUserPayload
 
@@ -166,49 +176,53 @@ export default function MembersPanel({ data, run, notify }: Props) {
                       <td>{row.roleLabel || '—'}</td>
                       {showActions ? (
                         <td>
-                          {canCreate ? (
-                            <button
-                              type="button"
-                              className={styles.btnLink}
-                              onClick={() => openEdit(row)}
-                            >
-                              编辑
-                            </button>
-                          ) : null}
-                          {canAssign ? (
-                            <Can permission={ADMIN.members.assignRole}>
-                              <button
-                                type="button"
-                                className={styles.btnLink}
-                                onClick={() => {
-                                  setRoleUserId(row.id)
-                                  setRoleDraft(parseIds(row.roleIds))
-                                }}
-                              >
-                                分配角色
-                              </button>
-                            </Can>
-                          ) : null}
-                          {canCreate ? (
-                            isSelf ? (
-                              <button type="button" className={styles.btnDanger} disabled>
-                                删除
-                              </button>
-                            ) : (
-                              <Popconfirm
-                                title="删除成员"
-                                description={`确认删除「${row.name}」？此操作不可恢复。`}
-                                okText="删除"
-                                okButtonProps={{ danger: true }}
-                                cancelText="取消"
-                                onConfirm={() => run(() => deleteUser(row.id), '成员已删除')}
-                              >
-                                <button type="button" className={styles.btnDanger}>
-                                  删除
+                          <div className={styles.tableRowActions}>
+                            {joinTableActions([
+                              canCreate ? (
+                                <button
+                                  type="button"
+                                  className={styles.btnLink}
+                                  onClick={() => openEdit(row)}
+                                >
+                                  编辑
                                 </button>
-                              </Popconfirm>
-                            )
-                          ) : null}
+                              ) : null,
+                              canAssign ? (
+                                <Can permission={ADMIN.members.assignRole}>
+                                  <button
+                                    type="button"
+                                    className={styles.btnLink}
+                                    onClick={() => {
+                                      setRoleUserId(row.id)
+                                      setRoleDraft(parseIds(row.roleIds))
+                                    }}
+                                  >
+                                    分配角色
+                                  </button>
+                                </Can>
+                              ) : null,
+                              canCreate ? (
+                                isSelf ? (
+                                  <button type="button" className={styles.btnLinkDanger} disabled>
+                                    删除
+                                  </button>
+                                ) : (
+                                  <Popconfirm
+                                    title="删除成员"
+                                    description={`确认删除「${row.name}」？此操作不可恢复。`}
+                                    okText="删除"
+                                    okButtonProps={{ danger: true }}
+                                    cancelText="取消"
+                                    onConfirm={() => run(() => deleteUser(row.id), '成员已删除')}
+                                  >
+                                    <button type="button" className={styles.btnLinkDanger}>
+                                      删除
+                                    </button>
+                                  </Popconfirm>
+                                )
+                              ) : null,
+                            ])}
+                          </div>
                         </td>
                       ) : null}
                     </tr>

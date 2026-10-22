@@ -431,6 +431,12 @@
   box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.12);
 }
 
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  box-shadow: 0 0 0 1000px #fff inset;
+}
+
 .modalFooter {
   display: flex;
   justify-content: flex-end;

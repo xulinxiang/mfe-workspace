@@ -201,6 +201,7 @@ export default function UserList() {
       </article>
 
       <FormModal
+        key={editing === 'create' ? 'create' : editing?.id ?? 'closed'}
         open={editing != null}
         title={creating ? '新建用户' : `编辑用户 · ${editing && editing !== 'create' ? editing.name : ''}`}
         onClose={closeModal}
@@ -224,6 +225,7 @@ export default function UserList() {
             type="email"
             value={draft.email}
             onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+            autoComplete={creating ? 'email' : 'off'}
             required
           />
         </label>
@@ -241,6 +243,12 @@ export default function UserList() {
             type="password"
             value={draft.password}
             onChange={(e) => setDraft({ ...draft, password: e.target.value })}
+            autoComplete="new-password"
+            name="user-new-password"
+            readOnly={!creating}
+            onFocus={(e) => {
+              if (!creating) e.currentTarget.removeAttribute('readOnly')
+            }}
             minLength={creating ? 6 : undefined}
             required={creating}
             placeholder={creating ? '至少 6 位' : '不修改请留空'}

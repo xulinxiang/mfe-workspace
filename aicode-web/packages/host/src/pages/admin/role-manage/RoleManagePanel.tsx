@@ -121,29 +121,32 @@ export default function RoleManagePanel({ data, run }: Props) {
                     </td>
                     {showActions ? (
                       <td>
-                        {canUpdate ? (
-                          <button
-                            type="button"
-                            className={styles.btnLink}
-                            onClick={() => openEdit(role)}
-                          >
-                            编辑
-                          </button>
-                        ) : null}
-                        {canDelete ? (
-                          <Popconfirm
-                            title="删除角色"
-                            description={`确认删除「${role.name}」？仍被成员使用时无法删除。`}
-                            okText="删除"
-                            okButtonProps={{ danger: true }}
-                            cancelText="取消"
-                            onConfirm={() => run(() => deleteRole(role.id), '角色已删除')}
-                          >
-                            <button type="button" className={styles.btnDanger}>
-                              删除
+                        <div className={styles.tableRowActions}>
+                          {canUpdate ? (
+                            <button
+                              type="button"
+                              className={styles.btnLink}
+                              onClick={() => openEdit(role)}
+                            >
+                              编辑
                             </button>
-                          </Popconfirm>
-                        ) : null}
+                          ) : null}
+                          {canUpdate && canDelete ? <span className={styles.tableActionSep} /> : null}
+                          {canDelete ? (
+                            <Popconfirm
+                              title="删除角色"
+                              description={`确认删除「${role.name}」？仍被成员使用时无法删除。`}
+                              okText="删除"
+                              okButtonProps={{ danger: true }}
+                              cancelText="取消"
+                              onConfirm={() => run(() => deleteRole(role.id), '角色已删除')}
+                            >
+                              <button type="button" className={styles.btnLinkDanger}>
+                                删除
+                              </button>
+                            </Popconfirm>
+                          ) : null}
+                        </div>
                       </td>
                     ) : null}
                   </tr>
