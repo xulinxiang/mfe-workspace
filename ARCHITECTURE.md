@@ -14,7 +14,7 @@
 - Host 只注册远程挂载点：`/product/*`、`/user/*`。
 - 子应用维护挂载点内的相对路由，例如 `product` 的 `create`、`category`、`detail/:id`。
 - Host 的 `route-registry.ts` 维护挂载点及页面权限映射。
-- 菜单来自 `GET /api/menus`，数据库菜单 path 必须落在已注册挂载点中。
+- 菜单来自 `GET /api/menus`。目录里填的 **前端路由** 就是侧栏 href：商品须 `/product/...`，用户须 `/user/...`，Host 页在 `route-registry` 挂组件。只建菜单不会自动生成页面组件。
 
 ## RBAC
 
@@ -32,8 +32,8 @@
 1. **Host 集中身份**  
    登录后 `GET /api/auth/me` 下发 **扁平 `permissions[]`**（有效权限集）。Host 与各 Remote 共用 `@aicode/shared/auth` 读取，**仅用于 UI 显隐**，不可当作安全边界。
 
-2. **命名：`resource:action`**  
-   一条 permission 一个码，例如 `product:list`（页面）、`product:create`（操作）。数据库 `resource_type`：`page` = 菜单/路由入口，`action` = 按钮/写操作；`parent_code` 指向所属页面权限。
+2. **命名：`子系统:资源:操作`**  
+   `permission.code` **全局唯一**，扁平权限列表无法区分两个子应用都叫 `shop:list` 的情况，必须把子系统写进码里：`product:shop:list` vs `user:shop:list`。页面码以子系统编码开头；按钮码为 `页面码:操作`。Host 历史码 `admin:*`、`dashboard:*` 仍视为主应用。数据库 `resource_type`：`page` = 菜单/路由入口，`action` = 按钮/写操作；`parent_code` 指向所属页面权限。
 
 3. **三层映射**  
    | 层 | 配置位置 | 作用 |

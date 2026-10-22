@@ -109,7 +109,7 @@ public class SystemAdminController {
     PermissionFields fields = resolvePermissionFields(request);
     fields.parentMenuId = request.getParentMenuId();
     fields.sortOrder = request.getSortOrder() == null ? nextPermissionSort(fields) : request.getSortOrder();
-    String path = normalizePagePath(request.getPath(), fields.resourceType);
+    String path = normalizePagePath(request.getPath(), fields.resourceType, fields.subsystem);
     String icon = blankToNull(request.getIcon());
     try {
       jdbc.update(
@@ -140,7 +140,7 @@ public class SystemAdminController {
     PermissionFields fields = resolvePermissionFields(request);
     fields.parentMenuId = request.getParentMenuId();
     fields.sortOrder = request.getSortOrder();
-    String path = normalizePagePath(request.getPath(), fields.resourceType);
+    String path = normalizePagePath(request.getPath(), fields.resourceType, fields.subsystem);
     String icon = blankToNull(request.getIcon());
     try {
       if (fields.sortOrder != null) {
@@ -228,6 +228,9 @@ public class SystemAdminController {
     MenuFields fields = resolveMenuFields(request, false);
     if ("route".equals(String.valueOf(row.get("node_type"))) && "group".equals(fields.nodeType)) {
       throw new BusinessException(400, "菜单不能改成目录");
+    }
+    if ("route".equals(fields.nodeType)) {
+      assertUniqueRoutePermission(id, fields.permission);
     }
     assertNotDescendant(id, fields.parentId);
     try {
@@ -497,6 +500,7 @@ public class SystemAdminController {
       if (fields.subsystem == null) {
         throw new BusinessException(400, "页面权限必须指定子系统");
       }
+      assertPageCodeMatchesSubsystem(fields.code, fields.subsystem);
     } else {
       if (fields.parentCode == null) {
         throw new BusinessException(400, "操作权限必须指定所属页面 parentCode");
@@ -515,6 +519,12 @@ public class SystemAdminController {
       if (fields.subsystem == null) {
         fields.subsystem = parentSubsystem;
       }
+      String prefix = fields.parentCode + ":";
+      if (!fields.code.startsWith(prefix)
+          || fields.code.length() <= prefix.length()
+          || fields.code.endsWith(":")) {
+        throw new BusinessException(400, "按钮权限码须为「页面码:操作」，例如 user:profile:update");
+      }
     }
     if (fields.subsystem != null) {
       Integer sub =
@@ -527,16 +537,49 @@ public class SystemAdminController {
     return fields;
   }
 
-  private String normalizePagePath(String rawPath, String resourceType) {
+  private void assertPageCodeMatchesSubsystem(String code, String subsystem) {
+    if (startsWithNamespace(code, subsystem)) {
+      return;
+    }
+    if ("host".equals(subsystem)
+        && (startsWithNamespace(code, "admin") || startsWithNamespace(code, "dashboard"))) {
+      return;
+    }
+    throw new BusinessException(
+        400,
+        "权限码须以子系统编码开头，例如 "
+            + subsystem
+            + ":shop:list（不同子应用不能都写 shop:list）");
+  }
+
+  private boolean startsWithNamespace(String code, String namespace) {
+    String prefix = namespace + ":";
+    return code.startsWith(prefix) && code.length() > prefix.length() && !code.endsWith(":");
+  }
+
+  private String normalizePagePath(String rawPath, String resourceType, String subsystem) {
     if (!"page".equals(resourceType)) {
       return null;
     }
     String path = blankToNull(rawPath);
     if (path == null) {
-      throw new BusinessException(400, "页面权限必须填写路由 path");
+      throw new BusinessException(400, "页面权限必须填写前端路由");
     }
     if (!path.startsWith("/")) {
-      throw new BusinessException(400, "路由 path 必须以 / 开头");
+      throw new BusinessException(400, "前端路由必须以 / 开头");
+    }
+    if ("product".equals(subsystem) && !"/product".equals(path) && !path.startsWith("/product/")) {
+      throw new BusinessException(400, "商品子系统的前端路由须以 /product 开头，例如 /product/shop");
+    }
+    if ("user".equals(subsystem) && !"/user".equals(path) && !path.startsWith("/user/")) {
+      throw new BusinessException(400, "用户子系统的前端路由须以 /user 开头，例如 /user/profile");
+    }
+    if ("host".equals(subsystem)
+        && ("/product".equals(path)
+            || path.startsWith("/product/")
+            || "/user".equals(path)
+            || path.startsWith("/user/"))) {
+      throw new BusinessException(400, "主应用前端路由不能占用 /product 或 /user 挂载点");
     }
     return path;
   }
@@ -766,7 +809,36 @@ public class SystemAdminController {
     return fields;
   }
 
+  private void assertUniqueRoutePermission(Long excludeId, String permission) {
+    if (permission == null) {
+      return;
+    }
+    Integer count;
+    if (excludeId == null) {
+      count =
+          jdbc.queryForObject(
+              "SELECT COUNT(*) FROM menu_item WHERE tenant_id=? AND node_type='route' AND permission_code=?",
+              Integer.class,
+              TenantContext.getTenantId(),
+              permission);
+    } else {
+      count =
+          jdbc.queryForObject(
+              "SELECT COUNT(*) FROM menu_item WHERE tenant_id=? AND node_type='route' AND permission_code=? AND id<>?",
+              Integer.class,
+              TenantContext.getTenantId(),
+              permission,
+              excludeId);
+    }
+    if (count != null && count > 0) {
+      throw new BusinessException(409, "该页面权限已挂在侧栏，不能重复添加");
+    }
+  }
+
   private void insertMenu(MenuFields fields) {
+    if ("route".equals(fields.nodeType)) {
+      assertUniqueRoutePermission(null, fields.permission);
+    }
     try {
       jdbc.update(
           "INSERT INTO menu_item(tenant_id, menu_key, label, path, app_name, icon, permission_code, "

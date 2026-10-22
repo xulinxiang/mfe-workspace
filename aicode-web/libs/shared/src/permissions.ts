@@ -5,7 +5,7 @@
 
 export type PermissionKind = 'page' | 'action'
 
-/** 单条权限定义：code 即后端 permission.code，格式 resource:action */
+/** 单条权限定义：code 即后端 permission.code，格式 子系统:资源:操作（如 product:shop:list） */
 export type PermissionDescriptor = {
   code: string
   name: string

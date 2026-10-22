@@ -11,12 +11,25 @@ import {
   type AdminMenuItem,
   type AdminPermission,
 } from '@/api/admin'
-import Can from '@/components/Can'
 import { ADMIN } from '@/config/admin-permissions'
+import {
+  actionCodeRestError,
+  codePrefixOf,
+  composeActionCode,
+  composePageCode,
+  composePagePath,
+  mountOf,
+  pageCodeRestError,
+  pagePathRestError,
+  pathPrefixOf,
+  splitActionCode,
+  splitPageCode,
+  splitPagePath,
+} from '@/config/catalog-rules'
 import { MENU_ICON_OPTIONS, renderMenuIcon, subsystemIcons } from '@/config/menu-icons'
 import { useAuth } from '@/context/AuthContext'
 import { cx } from '@/utils/cx'
-import { Form, Input, Modal, Select } from 'antd'
+import { Form, Input, Modal } from 'antd'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import styles from '../admin.module.scss'
@@ -74,6 +87,16 @@ function IconPicker({
   )
 }
 
+function findCatalogNode(nodes: CatalogNode[], key: string | null): CatalogNode | null {
+  if (!key) return null
+  for (const node of nodes) {
+    if (node.key === key) return node
+    const child = findCatalogNode(node.children, key)
+    if (child) return child
+  }
+  return null
+}
+
 function belongsToSubsystem(
   item: AdminMenuItem,
   menus: AdminMenuItem[],
@@ -107,17 +130,18 @@ export default function PermissionsPanel({ data, run }: Props) {
   const [groupOpen, setGroupOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<AdminMenuItem | null>(null)
   const [groupParentId, setGroupParentId] = useState<number | null>(null)
-  const [groupForm] = Form.useForm<{ label: string; icon?: string | null; parentId?: number | null }>()
+  const [groupForm] = Form.useForm<{ label: string; icon?: string | null }>()
 
   const [pageFormOpen, setPageFormOpen] = useState(false)
   const [editingPage, setEditingPage] = useState<AdminPermission | null>(null)
+  const [pageParentId, setPageParentId] = useState<number | null>(null)
+  const [pageCodePrefix, setPageCodePrefix] = useState('host:')
   const [pageForm] = Form.useForm<{
     code: string
     name: string
     subsystem: string
     path: string
     icon?: string | null
-    parentMenuId?: number | null
   }>()
 
   const [actionFormOpen, setActionFormOpen] = useState(false)
@@ -153,14 +177,6 @@ export default function PermissionsPanel({ data, run }: Props) {
   const groupsInSubsystem = useMemo(
     () => filteredMenus.filter((m) => m.nodeType === 'group'),
     [filteredMenus],
-  )
-
-  const groupOptions = useMemo(
-    () => [
-      { value: 0, label: '侧栏根级（不放目录下）' },
-      ...groupsInSubsystem.map((g) => ({ value: g.id, label: g.label })),
-    ],
-    [groupsInSubsystem],
   )
 
   const tree = useMemo(() => {
@@ -264,12 +280,25 @@ export default function PermissionsPanel({ data, run }: Props) {
     return nodes
   }, [filteredMenus, filteredIds, pageByCode, actions, pages, activeSubsystem, catalogByPermission])
 
-  const selectedGroupId = useMemo(() => {
-    if (!selectedKey?.startsWith('menu-')) return null
-    const id = Number(selectedKey.slice(5))
-    const item = filteredMenus.find((m) => m.id === id)
-    return item?.nodeType === 'group' ? item.id : null
-  }, [selectedKey, filteredMenus])
+  const selectedNode = useMemo(() => findCatalogNode(tree, selectedKey), [tree, selectedKey])
+  const selectedGroupId =
+    selectedNode?.kind === 'group' && selectedNode.menu ? selectedNode.menu.id : null
+  const hangGroupId = (() => {
+    if (!selectedNode) return null
+    if (selectedNode.kind === 'group') return selectedNode.menu?.id ?? null
+    if (selectedNode.kind === 'route') return selectedNode.menu?.parentId ?? null
+    if (selectedNode.kind === 'action') {
+      const route = menus.find((item) => item.id === selectedNode.parentMenuId)
+      return route?.parentId ?? null
+    }
+    return null
+  })()
+  const selectedParentCode =
+    selectedNode?.kind === 'route'
+      ? (selectedNode.page?.code ?? selectedNode.menu?.permission ?? null)
+      : selectedNode?.kind === 'action'
+        ? (selectedNode.action?.parentCode ?? null)
+        : null
 
   const routeCount = filteredMenus.filter((m) => m.nodeType !== 'group').length
 
@@ -292,10 +321,17 @@ export default function PermissionsPanel({ data, run }: Props) {
     Modal.confirm({ title, okText: '删除', okButtonProps: { danger: true }, onOk })
   }
 
+  function hangLabel(parentId: number | null) {
+    if (parentId == null) return '侧栏根级'
+    return groupsInSubsystem.find((g) => g.id === parentId)?.label ?? `目录 #${parentId}`
+  }
+
+  const pageMount = mountOf(activeSubsystem)
+
   function openCreateGroup(parentId: number | null) {
     setEditingGroup(null)
     setGroupParentId(parentId)
-    groupForm.setFieldsValue({ label: '', icon: 'FolderOutlined', parentId: parentId ?? 0 })
+    groupForm.setFieldsValue({ label: '', icon: 'FolderOutlined' })
     setGroupOpen(true)
   }
 
@@ -305,20 +341,18 @@ export default function PermissionsPanel({ data, run }: Props) {
     groupForm.setFieldsValue({
       label: item.label,
       icon: item.icon ?? 'FolderOutlined',
-      parentId: item.parentId ?? 0,
     })
     setGroupOpen(true)
   }
 
   async function submitGroup() {
     const values = await groupForm.validateFields()
-    const parentId = values.parentId === 0 || values.parentId == null ? null : values.parentId
     const payload = {
       label: values.label.trim(),
       icon: values.icon ?? null,
       app: activeSubsystem,
       nodeType: 'group' as const,
-      parentId,
+      parentId: groupParentId,
     }
     await run(async () => {
       if (editingGroup) await updateMenu(editingGroup.id, { ...payload, key: editingGroup.menuKey })
@@ -329,13 +363,14 @@ export default function PermissionsPanel({ data, run }: Props) {
 
   function openCreatePage(parentId: number | null) {
     setEditingPage(null)
+    setPageParentId(parentId)
+    setPageCodePrefix(codePrefixOf(activeSubsystem))
     pageForm.setFieldsValue({
       code: '',
       name: '',
       subsystem: activeSubsystem,
       path: '',
       icon: null,
-      parentMenuId: parentId ?? 0,
     })
     setPageFormOpen(true)
   }
@@ -343,31 +378,33 @@ export default function PermissionsPanel({ data, run }: Props) {
   function openEditPage(page: AdminPermission, menu?: AdminMenuItem) {
     setEditingPage(page)
     const catalog = catalogByPermission.get(page.code)
-    const parentId = menu?.parentId ?? null
+    const subsystem = page.subsystem ?? activeSubsystem
+    const splitCode = splitPageCode(page.code, subsystem)
+    const fullPath = catalog?.path ?? menu?.path ?? ''
+    setPageParentId(menu?.parentId ?? null)
+    setPageCodePrefix(splitCode.prefix)
     pageForm.setFieldsValue({
-      code: page.code,
+      code: splitCode.rest,
       name: page.name,
-      subsystem: page.subsystem ?? activeSubsystem,
-      path: catalog?.path ?? menu?.path ?? '',
+      subsystem,
+      path: splitPagePath(fullPath, subsystem).rest,
       icon: catalog?.icon ?? menu?.icon ?? null,
-      parentMenuId: parentId ?? 0,
     })
     setPageFormOpen(true)
   }
 
   async function submitPage() {
     const values = await pageForm.validateFields()
-    const parentMenuId =
-      values.parentMenuId === 0 || values.parentMenuId == null ? null : values.parentMenuId
+    const subsystem = values.subsystem || activeSubsystem
     const payload = {
-      code: values.code.trim(),
+      code: editingPage ? editingPage.code : composePageCode(pageCodePrefix, values.code),
       name: values.name.trim(),
       resourceType: 'page' as const,
-      subsystem: values.subsystem,
+      subsystem,
       parentCode: null,
-      path: values.path.trim(),
+      path: composePagePath(subsystem, values.path ?? ''),
       icon: values.icon ?? null,
-      parentMenuId,
+      parentMenuId: pageParentId,
     }
     await run(async () => {
       if (editingPage) await updatePermission(editingPage.id, payload)
@@ -379,14 +416,17 @@ export default function PermissionsPanel({ data, run }: Props) {
   function openCreateAction(parentCode: string) {
     setEditingAction(null)
     setActionParentCode(parentCode)
-    actionForm.setFieldsValue({ code: `${parentCode}:`, name: '' })
+    actionForm.setFieldsValue({ code: '', name: '' })
     setActionFormOpen(true)
   }
 
   function openEditAction(action: AdminPermission) {
     setEditingAction(action)
     setActionParentCode(action.parentCode ?? null)
-    actionForm.setFieldsValue({ code: action.code, name: action.name })
+    actionForm.setFieldsValue({
+      code: action.parentCode ? splitActionCode(action.code, action.parentCode) : action.code,
+      name: action.name,
+    })
     setActionFormOpen(true)
   }
 
@@ -394,7 +434,7 @@ export default function PermissionsPanel({ data, run }: Props) {
     if (!actionParentCode) return
     const values = await actionForm.validateFields()
     const payload = {
-      code: values.code.trim(),
+      code: editingAction ? editingAction.code : composeActionCode(actionParentCode, values.code),
       name: values.name.trim(),
       resourceType: 'action' as const,
       parentCode: actionParentCode,
@@ -455,14 +495,6 @@ export default function PermissionsPanel({ data, run }: Props) {
     const open = isOpen(node.key)
     const selected = selectedKey === node.key
     const hasKids = node.children.length > 0 || node.kind === 'group' || node.kind === 'route'
-    const menuIndex = node.menu ? node.siblingMenuIds.indexOf(node.menu.id) : -1
-    const actionIndex = node.action ? node.siblingActionIds.indexOf(node.action.id) : -1
-    const canMoveUp =
-      node.kind === 'action' ? actionIndex > 0 : node.menu != null && menuIndex > 0
-    const canMoveDown =
-      node.kind === 'action'
-        ? actionIndex >= 0 && actionIndex < node.siblingActionIds.length - 1
-        : node.menu != null && menuIndex >= 0 && menuIndex < node.siblingMenuIds.length - 1
     const badgeClass =
       node.kind === 'group'
         ? styles.badgeGroup
@@ -500,127 +532,6 @@ export default function PermissionsPanel({ data, run }: Props) {
             <strong>{node.title}</strong>
             {node.extra ? <span className={styles.treeMeta}>{node.extra}</span> : null}
           </span>
-          <span className={styles.treeActions} onClick={(e) => e.stopPropagation()}>
-            {canUpdate && (node.menu || node.action) ? (
-              <>
-                <button
-                  type="button"
-                  className={styles.btnLink}
-                  disabled={!canMoveUp}
-                  onClick={() =>
-                    node.kind === 'action' && node.action
-                      ? moveActions(node.siblingActionIds, node.action.id, -1)
-                      : node.menu
-                        ? moveMenus(node.siblingMenuIds, node.parentMenuId, node.menu.id, -1)
-                        : undefined
-                  }
-                >
-                  上移
-                </button>
-                <button
-                  type="button"
-                  className={styles.btnLink}
-                  disabled={!canMoveDown}
-                  onClick={() =>
-                    node.kind === 'action' && node.action
-                      ? moveActions(node.siblingActionIds, node.action.id, 1)
-                      : node.menu
-                        ? moveMenus(node.siblingMenuIds, node.parentMenuId, node.menu.id, 1)
-                        : undefined
-                  }
-                >
-                  下移
-                </button>
-              </>
-            ) : null}
-            {canCreate && node.kind === 'group' && node.menu ? (
-              <>
-                <button type="button" className={styles.btnLink} onClick={() => openCreateGroup(node.menu!.id)}>
-                  子目录
-                </button>
-                <button type="button" className={styles.btnLink} onClick={() => openCreatePage(node.menu!.id)}>
-                  菜单
-                </button>
-              </>
-            ) : null}
-            {canCreate && node.kind === 'route' && (node.page || node.menu?.permission) ? (
-              <button
-                type="button"
-                className={styles.btnLink}
-                onClick={() => openCreateAction(node.page?.code ?? node.menu!.permission!)}
-              >
-                按钮
-              </button>
-            ) : null}
-            {canCreate && node.kind === 'unplaced' && node.page ? (
-              <button
-                type="button"
-                className={styles.btnLink}
-                onClick={() => attachPage(node.page!, selectedGroupId)}
-              >
-                挂到侧栏
-              </button>
-            ) : null}
-            {canUpdate && node.kind === 'group' && node.menu ? (
-              <button type="button" className={styles.btnLink} onClick={() => openEditGroup(node.menu!)}>
-                编辑
-              </button>
-            ) : null}
-            {canUpdate && node.kind === 'route' && node.page ? (
-              <button type="button" className={styles.btnLink} onClick={() => openEditPage(node.page!, node.menu)}>
-                编辑
-              </button>
-            ) : null}
-            {canUpdate && node.kind === 'unplaced' && node.page ? (
-              <button type="button" className={styles.btnLink} onClick={() => openEditPage(node.page!)}>
-                编辑
-              </button>
-            ) : null}
-            {canUpdate && node.action ? (
-              <button type="button" className={styles.btnLink} onClick={() => openEditAction(node.action!)}>
-                编辑
-              </button>
-            ) : null}
-            {canDelete && node.kind === 'group' && node.menu ? (
-              <button
-                type="button"
-                className={styles.btnDanger}
-                onClick={() =>
-                  confirm(`删除目录「${node.title}」？`, () =>
-                    run(() => deleteMenu(node.menu!.id), '目录已删除'),
-                  )
-                }
-              >
-                删除
-              </button>
-            ) : null}
-            {canDelete && node.page && node.kind !== 'group' ? (
-              <button
-                type="button"
-                className={styles.btnDanger}
-                onClick={() =>
-                  confirm(`删除菜单「${node.title}」及其页面权限？`, () =>
-                    run(() => deletePermission(node.page!.id), '已删除'),
-                  )
-                }
-              >
-                删除
-              </button>
-            ) : null}
-            {canDelete && node.action ? (
-              <button
-                type="button"
-                className={styles.btnDanger}
-                onClick={() =>
-                  confirm(`删除按钮权限「${node.title}」？`, () =>
-                    run(() => deletePermission(node.action!.id), '已删除'),
-                  )
-                }
-              >
-                删除
-              </button>
-            ) : null}
-          </span>
         </div>
         {open
           ? node.children.map((child) => renderNode(child, depth + 1))
@@ -628,6 +539,80 @@ export default function PermissionsPanel({ data, run }: Props) {
       </div>
     )
   }
+
+  function selectedMoveState() {
+    if (!selectedNode) return { up: false, down: false }
+    if (selectedNode.kind === 'action' && selectedNode.action) {
+      const i = selectedNode.siblingActionIds.indexOf(selectedNode.action.id)
+      return { up: i > 0, down: i >= 0 && i < selectedNode.siblingActionIds.length - 1 }
+    }
+    if (selectedNode.menu) {
+      const i = selectedNode.siblingMenuIds.indexOf(selectedNode.menu.id)
+      return { up: i > 0, down: i >= 0 && i < selectedNode.siblingMenuIds.length - 1 }
+    }
+    return { up: false, down: false }
+  }
+
+  function onMove(dir: -1 | 1) {
+    if (!selectedNode) return
+    if (selectedNode.kind === 'action' && selectedNode.action) {
+      return moveActions(selectedNode.siblingActionIds, selectedNode.action.id, dir)
+    }
+    if (selectedNode.menu) {
+      return moveMenus(
+        selectedNode.siblingMenuIds,
+        selectedNode.parentMenuId,
+        selectedNode.menu.id,
+        dir,
+      )
+    }
+  }
+
+  function onEditSelected() {
+    if (!selectedNode) return
+    if (selectedNode.kind === 'group' && selectedNode.menu) openEditGroup(selectedNode.menu)
+    else if (selectedNode.kind === 'action' && selectedNode.action) openEditAction(selectedNode.action)
+    else if (selectedNode.page) openEditPage(selectedNode.page, selectedNode.menu)
+  }
+
+  function onDeleteSelected() {
+    if (!selectedNode) return
+    if (selectedNode.kind === 'group' && selectedNode.menu) {
+      confirm(`删除目录「${selectedNode.title}」？`, () =>
+        run(() => deleteMenu(selectedNode.menu!.id), '目录已删除'),
+      )
+      return
+    }
+    if (selectedNode.action) {
+      confirm(`删除按钮权限「${selectedNode.title}」？`, () =>
+        run(() => deletePermission(selectedNode.action!.id), '已删除'),
+      )
+      return
+    }
+    if (selectedNode.page) {
+      confirm(`删除菜单「${selectedNode.title}」及其页面权限？`, () =>
+        run(() => deletePermission(selectedNode.page!.id), '已删除'),
+      )
+    }
+  }
+
+  const moveState = selectedMoveState()
+  const canEditSelected = Boolean(
+    selectedNode &&
+      (selectedNode.menu || selectedNode.action || selectedNode.page) &&
+      selectedNode.key !== 'unplaced-root',
+  )
+  const toolbarHint = !selectedNode
+    ? '未选中节点：新建会加到当前子系统根级。点一行再操作上移、编辑或挂子级。'
+    : selectedNode.kind === 'group'
+      ? `已选目录「${selectedNode.title}」：可在它下面新建子目录或菜单。`
+      : selectedNode.kind === 'route'
+        ? `已选菜单「${selectedNode.title}」：可新建按钮权限；新建菜单会挂到同一目录下。`
+        : selectedNode.kind === 'action'
+          ? `已选按钮「${selectedNode.title}」`
+          : selectedNode.page
+            ? `已选未挂菜单「${selectedNode.title}」`
+            : '未挂侧栏的页面，可先选目录再点「挂到侧栏」。'
 
   return (
     <div className={styles.splitFill}>
@@ -672,27 +657,81 @@ export default function PermissionsPanel({ data, run }: Props) {
               {routeCount} 项
             </span>
           </h2>
-          <Can permission={ADMIN.permissions.create}>
+        </div>
+        <div className={cx(styles.panelBody, styles.panelBodyScroll)}>
+          <div className={styles.treeToolbar}>
+            <p className={styles.treeToolbarHint}>{toolbarHint}</p>
             <div className={styles.treeHeadActions}>
               <button
                 type="button"
                 className={styles.btnGhost}
+                disabled={!canCreate}
+                title={canCreate ? undefined : '需要按钮权限 admin:permissions:create'}
                 onClick={() => openCreateGroup(selectedGroupId)}
               >
                 新建目录
               </button>
-              <button type="button" className={styles.btnPrimary} onClick={() => openCreatePage(selectedGroupId)}>
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                disabled={!canCreate}
+                title={canCreate ? undefined : '需要按钮权限 admin:permissions:create'}
+                onClick={() => openCreatePage(hangGroupId)}
+              >
                 新建菜单
               </button>
+              <button
+                type="button"
+                className={styles.btnGhost}
+                disabled={!canCreate || !selectedParentCode}
+                title={!selectedParentCode ? '先选中一个菜单，再新建它的按钮权限' : undefined}
+                onClick={() => selectedParentCode && openCreateAction(selectedParentCode)}
+              >
+                新建按钮
+              </button>
+              {selectedNode?.kind === 'unplaced' && selectedNode.page ? (
+                <button
+                  type="button"
+                  className={styles.btnGhost}
+                  disabled={!canCreate}
+                  onClick={() => attachPage(selectedNode.page!, selectedGroupId)}
+                >
+                  挂到侧栏
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className={styles.btnGhost}
+                disabled={!canUpdate || !moveState.up}
+                onClick={() => onMove(-1)}
+              >
+                上移
+              </button>
+              <button
+                type="button"
+                className={styles.btnGhost}
+                disabled={!canUpdate || !moveState.down}
+                onClick={() => onMove(1)}
+              >
+                下移
+              </button>
+              <button
+                type="button"
+                className={styles.btnGhost}
+                disabled={!canUpdate || !canEditSelected}
+                onClick={onEditSelected}
+              >
+                编辑
+              </button>
+              <button
+                type="button"
+                className={styles.btnDanger}
+                disabled={!canDelete || !canEditSelected}
+                onClick={onDeleteSelected}
+              >
+                删除
+              </button>
             </div>
-          </Can>
-        </div>
-        <div className={cx(styles.panelBody, styles.panelBodyScroll)}>
-          <div className={styles.catalogBanner}>
-            <p>
-              目录可嵌套、可折叠、可用上移/下移调整顺序。选中目录后再点「新建目录 / 新建菜单」，会挂到该目录下。
-              按钮权限挂在菜单下面。
-            </p>
           </div>
           {tree.length === 0 ? (
             <p className={styles.hint}>该子系统还没有目录或菜单</p>
@@ -712,17 +751,13 @@ export default function PermissionsPanel({ data, run }: Props) {
         width={480}
       >
         <p className={styles.formTip}>
-          目录只用于折叠分组，不对应页面。可挂在另一个目录下形成多级菜单。
-          {groupParentId ? ' 将创建为当前选中目录的子级。' : null}
+          目录只用于折叠分组，不对应页面。将挂到
+          <strong> {hangLabel(groupParentId)} </strong>
+          （左侧先选目录再点新建；根级则不要选中任何目录）。
         </p>
         <Form form={groupForm} layout="vertical">
           <Form.Item name="label" label="目录名称" rules={[{ required: true }]}>
             <Input placeholder="例如 运营管理" />
-          </Form.Item>
-          <Form.Item name="parentId" label="上级目录">
-            <Select
-              options={groupOptions.filter((opt) => opt.value !== editingGroup?.id)}
-            />
           </Form.Item>
           <Form.Item name="icon" label="图标">
             <IconPicker />
@@ -740,43 +775,57 @@ export default function PermissionsPanel({ data, run }: Props) {
         width={520}
       >
         <p className={styles.formTip}>
-          填写<strong>权限码 + 路由 path</strong>，保存后写入标准路由并加入当前租户侧栏。
-          页面组件仍需在 Host <code>route-registry</code>（或子应用）挂载后才能打开。
+          将挂到<strong> {hangLabel(pageParentId)} </strong>
+          。子系统前缀已带入，保存为
+          <strong> {`${pageCodePrefix}${pageMount.exampleRest}`}</strong>
+          ，路由
+          <strong> {`${pathPrefixOf(activeSubsystem)}${pageMount.examplePathRest}`}</strong>
+          。页面组件仍须在 {pageMount.routerHint} 里声明。
         </p>
         <Form form={pageForm} layout="vertical">
-          <Form.Item name="subsystem" label="所属子系统" rules={[{ required: true }]}>
-            <Select
-              disabled
-              options={data.subsystems.map((s) => ({
-                value: s.code,
-                label: `${s.name}（${s.code}）`,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="parentMenuId" label="挂到目录">
-            <Select options={groupOptions} />
+          <Form.Item name="subsystem" hidden>
+            <Input />
           </Form.Item>
           <Form.Item
             name="code"
             label="权限码"
-            extra="建议 resource:action，如 asset:view"
-            rules={[{ required: true, message: '请填写权限码' }]}
+            extra={`只需填后半段，两个子应用都可写 ${pageMount.exampleRest}，完整码不会撞`}
+            rules={[
+              { required: true, message: '填写资源:操作' },
+              {
+                validator: async (_, value) => {
+                  const err = pageCodeRestError(String(value ?? ''))
+                  if (err) throw new Error(err)
+                },
+              },
+            ]}
           >
-            <Input placeholder="asset:view" disabled={Boolean(editingPage)} />
+            <Input
+              addonBefore={pageCodePrefix}
+              placeholder={pageMount.exampleRest}
+              disabled={Boolean(editingPage)}
+            />
           </Form.Item>
           <Form.Item name="name" label="显示名称" rules={[{ required: true }]}>
-            <Input placeholder="资产管理" />
+            <Input placeholder="店铺列表" />
           </Form.Item>
           <Form.Item
             name="path"
-            label="路由 path"
-            extra="例如 /assets；保存后加入侧栏"
+            label="前端路由"
+            extra={`相对当前子系统挂载点。空则落在 ${mountOf(activeSubsystem).pathPrefix || '/'} `}
             rules={[
-              { required: true, message: '请填写路由 path' },
-              { pattern: /^\//, message: '必须以 / 开头' },
+              {
+                validator: async (_, value) => {
+                  const err = pagePathRestError(String(value ?? ''), activeSubsystem)
+                  if (err) throw new Error(err)
+                },
+              },
             ]}
           >
-            <Input placeholder="/assets" />
+            <Input
+              addonBefore={pathPrefixOf(activeSubsystem)}
+              placeholder={pageMount.examplePathRest}
+            />
           </Form.Item>
           <Form.Item name="icon" label="图标" extra="非必填；点击选中，再点一次取消">
             <IconPicker />
@@ -793,8 +842,25 @@ export default function PermissionsPanel({ data, run }: Props) {
         destroyOnClose
       >
         <Form form={actionForm} layout="vertical">
-          <Form.Item name="code" label="权限码" rules={[{ required: true }]}>
-            <Input placeholder="parent:action" disabled={Boolean(editingAction)} />
+          <Form.Item
+            name="code"
+            label="权限码"
+            extra="前缀已带上所属页面码，这里只填操作名"
+            rules={[
+              { required: true, message: '填写操作名' },
+              {
+                validator: async (_, value) => {
+                  const err = actionCodeRestError(String(value ?? ''))
+                  if (err) throw new Error(err)
+                },
+              },
+            ]}
+          >
+            <Input
+              addonBefore={actionParentCode ? `${actionParentCode}:` : undefined}
+              placeholder="create"
+              disabled={Boolean(editingAction)}
+            />
           </Form.Item>
           <Form.Item name="name" label="名称" rules={[{ required: true }]}>
             <Input />

@@ -123,6 +123,11 @@
   cursor: pointer;
 }
 
+.btnGhost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .btnLink {
   border: none;
   background: transparent;
@@ -561,7 +566,30 @@
 
 .treeHeadActions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+.treeToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #d6e4ff;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f0f5ff 0%, #fafbff 100%);
+}
+
+.treeToolbarHint {
+  margin: 0;
+  flex: 1;
+  min-width: 12rem;
+  color: $host-muted;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .treeList {
