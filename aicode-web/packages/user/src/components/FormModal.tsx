@@ -1,4 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import styles from '@/styles/page.module.scss'
 
 type Props = {
@@ -22,9 +24,18 @@ export default function FormModal({
   children,
   error,
 }: Props) {
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
+
   if (!open) return null
 
-  return (
+  return createPortal(
     <div
       className={styles.modalOverlay}
       role="presentation"
@@ -59,6 +70,7 @@ export default function FormModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
