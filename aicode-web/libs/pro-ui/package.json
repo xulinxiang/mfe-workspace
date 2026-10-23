@@ -10,10 +10,10 @@
     "./menu-pro": "./src/menu-pro.ts"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.5.2",
-    "@ant-design/pro-components": "^2.8.2",
-    "antd": "^5.22.5",
-    "dayjs": "^1.11.13"
+    "@ant-design/icons": "5.5.2",
+    "@ant-design/pro-components": "2.8.2",
+    "antd": "5.22.5",
+    "dayjs": "1.11.13"
   },
   "peerDependencies": {
     "react": "^18.3.1",

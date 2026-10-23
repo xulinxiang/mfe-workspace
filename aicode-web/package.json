@@ -21,5 +21,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "antd": "5.22.5",
+    "@ant-design/icons": "5.5.2",
+    "@ant-design/pro-components": "2.8.2"
   }
 }

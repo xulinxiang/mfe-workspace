@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
           react: { singleton: true },
           'react-dom': { singleton: true },
           'react-router-dom': { singleton: true },
-          antd: { singleton: true },
+          antd: { singleton: true, requiredVersion: '5.22.5' },
         },
       }),
     ],
