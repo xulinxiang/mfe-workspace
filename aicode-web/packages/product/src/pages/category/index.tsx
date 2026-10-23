@@ -6,6 +6,7 @@ import {
   getProductCategories,
   updateProductCategory,
 } from '@/api/product'
+import { Form, Input, Select } from 'antd'
 import FormModal from '@/components/FormModal'
 import { PRODUCT } from '@/permissions'
 import type { ProductCategory } from '@/types/product'
@@ -57,6 +58,10 @@ export default function ProductCategoryPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
+    if (!draft.name.trim()) {
+      setFormError('请输入分类名称')
+      return
+    }
     setSubmitting(true)
     setFormError(null)
     try {
@@ -173,29 +178,30 @@ export default function ProductCategoryPage() {
         submitLabel={creating ? '创建' : '保存'}
         error={formError}
       >
-        <label className={styles.field}>
-          <span>分类名称</span>
-          <input
-            value={draft.name}
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-            placeholder="例如：数码配件"
-            required
-            autoFocus
-          />
-        </label>
-        <label className={styles.field}>
-          <span>状态</span>
-          <select
-            value={draft.status}
-            onChange={(e) =>
-              setDraft({ ...draft, status: e.target.value === 'off' ? 'off' : 'on' })
-            }
-          >
-            <option value="on">启用</option>
-            <option value="off">停用</option>
-          </select>
-        </label>
+        <Form layout="vertical" component={false}>
+          <Form.Item label="分类名称" required>
+            <Input
+              value={draft.name}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              placeholder="例如：数码配件"
+              autoFocus
+            />
+          </Form.Item>
+          <Form.Item label="状态" required>
+            <Select
+              value={draft.status}
+              options={[
+                { value: 'on', label: '启用' },
+                { value: 'off', label: '停用' },
+              ]}
+              onChange={(status: 'on' | 'off') =>
+                setDraft({ ...draft, status: status === 'off' ? 'off' : 'on' })
+              }
+            />
+          </Form.Item>
+        </Form>
       </FormModal>
     </section>
   )
 }
+

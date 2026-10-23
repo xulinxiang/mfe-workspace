@@ -6,6 +6,7 @@ import {
   getUserAccounts,
   updateUserAccount,
 } from '@/api/user'
+import { Form, Input } from 'antd'
 import FormModal from '@/components/FormModal'
 import { USER } from '@/permissions'
 import type { UserAccount } from '@/types/user'
@@ -78,6 +79,14 @@ export default function UserList() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
+    if (!draft.name.trim() || !draft.email.trim()) {
+      setFormError('请填写姓名和邮箱')
+      return
+    }
+    if (creating && draft.password.length < 6) {
+      setFormError('初始密码至少 6 位')
+      return
+    }
     setSubmitting(true)
     setFormError(null)
     try {
@@ -210,50 +219,42 @@ export default function UserList() {
         submitLabel={creating ? '创建' : '保存'}
         error={formError}
       >
-        <label className={styles.field}>
-          <span>姓名</span>
-          <input
-            value={draft.name}
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-            required
-            autoFocus
-          />
-        </label>
-        <label className={styles.field}>
-          <span>邮箱</span>
-          <input
-            type="email"
-            value={draft.email}
-            onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-            autoComplete={creating ? 'email' : 'off'}
-            required
-          />
-        </label>
-        <label className={styles.field}>
-          <span>手机号</span>
-          <input
-            value={draft.phone}
-            onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-            placeholder="可选"
-          />
-        </label>
-        <label className={styles.field}>
-          <span>{creating ? '初始密码' : '新密码'}</span>
-          <input
-            type="password"
-            value={draft.password}
-            onChange={(e) => setDraft({ ...draft, password: e.target.value })}
-            autoComplete="new-password"
-            name="user-new-password"
-            readOnly={!creating}
-            onFocus={(e) => {
-              if (!creating) e.currentTarget.removeAttribute('readOnly')
-            }}
-            minLength={creating ? 6 : undefined}
-            required={creating}
-            placeholder={creating ? '至少 6 位' : '不修改请留空'}
-          />
-        </label>
+        <Form layout="vertical" component={false}>
+          <Form.Item label="姓名" required>
+            <Input
+              value={draft.name}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              autoFocus
+            />
+          </Form.Item>
+          <Form.Item label="邮箱" required>
+            <Input
+              type="email"
+              value={draft.email}
+              onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+              autoComplete={creating ? 'email' : 'off'}
+            />
+          </Form.Item>
+          <Form.Item label="手机号">
+            <Input
+              value={draft.phone}
+              onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              placeholder="可选"
+            />
+          </Form.Item>
+          <Form.Item label={creating ? '初始密码' : '新密码'} required={creating}>
+            <Input.Password
+              value={draft.password}
+              onChange={(e) => setDraft({ ...draft, password: e.target.value })}
+              autoComplete="new-password"
+              readOnly={!creating}
+              onFocus={(e) => {
+                if (!creating) e.currentTarget.removeAttribute('readOnly')
+              }}
+              placeholder={creating ? '至少 6 位' : '不修改请留空'}
+            />
+          </Form.Item>
+        </Form>
       </FormModal>
     </section>
   )

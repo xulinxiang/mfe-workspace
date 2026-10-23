@@ -24,7 +24,12 @@ export default defineConfig(({ mode }) => {
           product_app: productRemote,
           user_app: userRemote,
         },
-        shared: ['react', 'react-dom', 'react-router-dom'],
+        shared: {
+          react: { singleton: true },
+          'react-dom': { singleton: true },
+          'react-router-dom': { singleton: true },
+          antd: { singleton: true },
+        },
       }),
     ],
     server: {

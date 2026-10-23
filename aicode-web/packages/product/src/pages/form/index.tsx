@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { Button, Form, Input, InputNumber, Select } from 'antd'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   createProduct,
@@ -9,18 +10,20 @@ import {
 import type { ProductCategory } from '@/types/product'
 import styles from '@/styles/page.module.scss'
 
+type FormValues = {
+  name: string
+  sku: string
+  price: number
+  stock: number
+  status: 'on' | 'off'
+  categoryId?: string
+}
+
 export default function ProductForm() {
   const { id } = useParams()
   const editing = Boolean(id)
   const navigate = useNavigate()
-  const [form, setForm] = useState({
-    name: '',
-    sku: '',
-    price: '',
-    stock: '0',
-    status: 'on',
-    categoryId: '',
-  })
+  const [form] = Form.useForm<FormValues>()
   const [categories, setCategories] = useState<ProductCategory[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,32 +35,34 @@ export default function ProductForm() {
   }, [])
 
   useEffect(() => {
-    if (!id) return
+    if (!id) {
+      form.setFieldsValue({ stock: 0, status: 'on' })
+      return
+    }
     getProductById(id)
       .then((product) =>
-        setForm({
+        form.setFieldsValue({
           name: product.name,
           sku: product.sku,
-          price: String(product.price),
-          stock: String(product.stock),
+          price: product.price,
+          stock: product.stock,
           status: product.status,
-          categoryId: product.categoryId ? String(product.categoryId) : '',
+          categoryId: product.categoryId ? String(product.categoryId) : undefined,
         }),
       )
       .catch((err: Error) => setError(err.message || '商品加载失败'))
-  }, [id])
+  }, [form, id])
 
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
+  async function onFinish(values: FormValues) {
     setSubmitting(true)
     setError(null)
     const payload = {
-      name: form.name,
-      sku: form.sku,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      status: form.status === 'off' ? ('off' as const) : ('on' as const),
-      categoryId: form.categoryId ? Number(form.categoryId) : null,
+      name: values.name,
+      sku: values.sku,
+      price: Number(values.price),
+      stock: Number(values.stock),
+      status: values.status === 'off' ? ('off' as const) : ('on' as const),
+      categoryId: values.categoryId ? Number(values.categoryId) : null,
     }
     try {
       if (editing && id) await updateProduct(Number(id), payload)
@@ -82,82 +87,58 @@ export default function ProductForm() {
         </Link>
       </div>
 
-      <form className={`${styles.card} ${styles.form}`} onSubmit={onSubmit}>
-        <label>
-          <span>商品名称</span>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="例如：无线鼠标"
-            required
+      <Form
+        form={form}
+        layout="vertical"
+        className={`${styles.card} ${styles.form}`}
+        onFinish={onFinish}
+        requiredMark
+      >
+        <Form.Item name="name" label="商品名称" rules={[{ required: true, message: '请输入商品名称' }]}>
+          <Input placeholder="例如：无线鼠标" />
+        </Form.Item>
+        <Form.Item name="sku" label="SKU" rules={[{ required: true, message: '请输入 SKU' }]}>
+          <Input placeholder="SKU-1005" />
+        </Form.Item>
+        <Form.Item name="categoryId" label="分类">
+          <Select
+            allowClear
+            placeholder="未分类"
+            options={categories.map((category) => ({
+              value: String(category.id),
+              label: category.name,
+            }))}
           />
-        </label>
-        <label>
-          <span>SKU</span>
-          <input
-            value={form.sku}
-            onChange={(e) => setForm({ ...form, sku: e.target.value })}
-            placeholder="SKU-1005"
-            required
+        </Form.Item>
+        <Form.Item
+          name="price"
+          label="价格"
+          rules={[{ required: true, message: '请输入价格' }]}
+        >
+          <InputNumber min={0} step={0.01} precision={2} style={{ width: '100%' }} placeholder="0.00" />
+        </Form.Item>
+        <Form.Item
+          name="stock"
+          label="库存"
+          rules={[{ required: true, message: '请输入库存' }]}
+        >
+          <InputNumber min={0} precision={0} style={{ width: '100%' }} />
+        </Form.Item>
+        <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
+          <Select
+            options={[
+              { value: 'on', label: '上架' },
+              { value: 'off', label: '下架' },
+            ]}
           />
-        </label>
-        <label>
-          <span>分类</span>
-          <select
-            value={form.categoryId}
-            onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-          >
-            <option value="">未分类</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>价格</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            placeholder="0.00"
-            required
-          />
-        </label>
-        <label>
-          <span>库存</span>
-          <input
-            type="number"
-            min="0"
-            value={form.stock}
-            onChange={(e) => setForm({ ...form, stock: e.target.value })}
-            required
-          />
-        </label>
-        <label>
-          <span>状态</span>
-          <select
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
-          >
-            <option value="on">上架</option>
-            <option value="off">下架</option>
-          </select>
-        </label>
+        </Form.Item>
         {error ? <p className={styles.formError}>{error}</p> : null}
         <div className={styles.formActions}>
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`${styles.btn} ${styles.primary}`}
-          >
-            {submitting ? '提交中…' : '保存'}
-          </button>
+          <Button type="primary" htmlType="submit" loading={submitting}>
+            保存
+          </Button>
         </div>
-      </form>
+      </Form>
     </section>
   )
 }

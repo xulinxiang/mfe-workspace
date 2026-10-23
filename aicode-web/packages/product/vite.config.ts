@@ -16,7 +16,12 @@ export default defineConfig({
       exposes: {
         './App': './src/App.tsx',
       },
-      shared: ['react', 'react-dom', 'react-router-dom'],
+      shared: {
+        react: { singleton: true },
+        'react-dom': { singleton: true },
+        'react-router-dom': { singleton: true },
+        antd: { singleton: true },
+      },
     }),
   ],
   server: {
