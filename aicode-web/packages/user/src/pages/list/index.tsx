@@ -219,7 +219,8 @@ export default function UserList() {
         submitLabel={creating ? '创建' : '保存'}
         error={formError}
       >
-        <Form layout="vertical" component={false}>
+        <div className={`ant-form ant-form-vertical ${styles.modalFormBody}`}>
+          <Form layout="vertical" component={false} colon={false} requiredMark labelAlign="left">
           <Form.Item label="姓名" required>
             <Input
               value={draft.name}
@@ -254,7 +255,8 @@ export default function UserList() {
               placeholder={creating ? '至少 6 位' : '不修改请留空'}
             />
           </Form.Item>
-        </Form>
+          </Form>
+        </div>
       </FormModal>
     </section>
   )

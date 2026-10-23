@@ -43,6 +43,8 @@ src/
 
 样式约定：**CSS Modules + SCSS**（不用 Less）。类名编译为 `host_xxx` / `product_xxx` / `user_xxx`。Pro 组件与现有样式可并存，按页渐进接入。
 
+**尺寸单位**：业务样式 **一律写 `px`**（与设计稿一致）；根目录 `postcss.config.cjs` 使用 **postcss-pxtorem**（`rootValue: 16`）在构建时转为 `rem`，`html { font-size: 16px }` 为基准。小于 2px 的值（如 1px 边框）不转换。`node_modules`（含 antd）不参与转换。
+
 ## 环境
 
 Node.js ≥ 18（推荐 20）

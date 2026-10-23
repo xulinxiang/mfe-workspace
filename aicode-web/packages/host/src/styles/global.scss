@@ -1,5 +1,9 @@
 @use './tokens' as *;
 
+html {
+  font-size: 16px;
+}
+
 html,
 body,
 #root {

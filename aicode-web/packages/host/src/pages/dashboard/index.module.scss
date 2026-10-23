@@ -2,7 +2,7 @@
 
 .page {
   min-width: 0;
-  min-height: calc(100vh - #{$host-header-h} - 3.25rem);
+  min-height: calc(100vh - #{$host-header-h} - 52px);
   display: flex;
   flex-direction: column;
 }
@@ -11,8 +11,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.35rem 1.4rem 1.25rem;
+  gap: 20px;
+  padding: 21.6px 22.4px 20px;
   background: $host-card;
   border: 1px solid $host-line;
   border-radius: 14px;
@@ -25,19 +25,19 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 16px;
 }
 
 .eyebrow {
-  margin: 0 0 0.2rem;
+  margin: 0 0 3.2px;
   color: $host-muted;
-  font-size: 0.82rem;
+  font-size: 13.12px;
   font-weight: 500;
 }
 
 .boardHead h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: $host-ink;
@@ -45,18 +45,18 @@
 
 .date {
   color: $host-muted;
-  font-size: 0.82rem;
+  font-size: 13.12px;
   white-space: nowrap;
 }
 
 .errorBanner {
   margin: 0;
-  padding: 0.55rem 0.75rem;
+  padding: 8.8px 12px;
   border-radius: 8px;
   background: #fff2f0;
   border: 1px solid #ffccc7;
   color: $host-danger;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .metricStrip {
@@ -70,9 +70,9 @@
 }
 
 .metric {
-  padding: 1rem 1.1rem;
+  padding: 16px 17.6px;
   display: grid;
-  gap: 0.2rem;
+  gap: 3.2px;
   border-right: 1px solid $host-line-soft;
 }
 
@@ -81,12 +81,12 @@
 }
 
 .metricLabel {
-  font-size: 0.78rem;
+  font-size: 12.48px;
   color: $host-muted;
 }
 
 .metric strong {
-  font-size: 1.65rem;
+  font-size: 26.4px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -99,27 +99,27 @@
 }
 
 .metricNote {
-  font-size: 0.72rem;
+  font-size: 11.52px;
   color: #939aa3;
 }
 
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;
-  gap: 0.85rem;
+  gap: 13.6px;
   align-items: start;
 }
 
 .featureGrid {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .tile {
   border: 1px solid $host-line-soft;
   border-radius: 12px;
-  padding: 0.8rem 0.95rem 0.9rem;
+  padding: 12.8px 15.2px 14.4px;
   background: #fff;
 }
 
@@ -127,19 +127,19 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
+  gap: 8px;
+  margin-bottom: 10.4px;
 }
 
 .tileHead h2 {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   font-weight: 600;
 }
 
 .tileHead span {
   color: $host-muted;
-  font-size: 0.72rem;
+  font-size: 11.52px;
   white-space: nowrap;
 }
 
@@ -147,7 +147,7 @@
   border-radius: 8px;
   background: #fafbfc;
   border: 1px solid $host-line-soft;
-  padding: 0.35rem 0.25rem 0;
+  padding: 5.6px 4px 0;
 }
 
 .chartSvg {
@@ -184,10 +184,10 @@
 .axisLabels {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-  padding: 0.45rem 0.35rem 0.5rem;
+  gap: 4px;
+  padding: 7.2px 5.6px 8px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 12px;
   color: $host-muted;
 }
 
@@ -197,29 +197,29 @@
 }
 
 .tileToday {
-  padding-bottom: 0.85rem;
+  padding-bottom: 13.6px;
 }
 
 .todayHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .todayHead h2 {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   font-weight: 600;
 }
 
 .todayDeltaUp,
 .todayDeltaDown,
 .todayDeltaMuted {
-  font-size: 0.72rem;
+  font-size: 11.52px;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
+  padding: 3.2px 8px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -246,9 +246,9 @@
 .todayBody {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.85rem 1rem;
+  gap: 13.6px 16px;
   align-items: center;
-  padding: 0.65rem 0.75rem;
+  padding: 10.4px 12px;
   border-radius: 10px;
   background: linear-gradient(135deg, #f8faff 0%, #fafbfc 48%, #fff 100%);
   border: 1px solid #eef2f8;
@@ -256,8 +256,8 @@
 
 .todayRing {
   position: relative;
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 88px;
+  height: 88px;
   flex-shrink: 0;
 }
 
@@ -288,12 +288,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.05rem;
+  gap: 0.8px;
   pointer-events: none;
 }
 
 .todayRingCenter strong {
-  font-size: 1.15rem;
+  font-size: 18.4px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -302,7 +302,7 @@
 }
 
 .todayRingCenter span {
-  font-size: 0.65rem;
+  font-size: 10.4px;
   color: $host-muted;
 }
 
@@ -310,23 +310,23 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 8.8px;
 }
 
 .todayTotal {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .todayTotal span {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: $host-muted;
 }
 
 .todayTotal strong {
-  font-size: 1.35rem;
+  font-size: 21.6px;
   font-weight: 700;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -359,20 +359,20 @@
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.35rem 0.5rem;
+  gap: 5.6px 8px;
 }
 
 .todayLegend li {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.72rem;
+  gap: 5.6px;
+  font-size: 11.52px;
   color: $host-muted;
 }
 
 .todayLegend b {
-  font-size: 0.88rem;
+  font-size: 14.08px;
   font-weight: 700;
   color: $host-ink;
   font-variant-numeric: tabular-nums;
@@ -397,12 +397,12 @@
 
 .todayCta {
   align-self: flex-start;
-  margin-top: 0.15rem;
-  font-size: 0.75rem;
+  margin-top: 2.4px;
+  font-size: 12px;
   font-weight: 600;
   color: $host-accent;
   text-decoration: none;
-  padding: 0.35rem 0.55rem;
+  padding: 5.6px 8.8px;
   border-radius: 8px;
   background: #fff;
   border: 1px solid #d6e4ff;
@@ -423,15 +423,15 @@
   flex: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: 8.8px;
 }
 
 .sysCard {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  min-height: 8.5rem;
-  padding: 0.55rem 0.6rem 0.6rem;
+  gap: 7.2px;
+  min-height: 136px;
+  padding: 8.8px 9.6px 9.6px;
   border-radius: 10px;
   background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
   border: 1px solid $host-line-soft;
@@ -440,7 +440,7 @@
 .sysCardMain {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 0.5rem;
+  gap: 8px;
   align-items: start;
   text-decoration: none;
   color: inherit;
@@ -451,12 +451,12 @@
 }
 
 .sysBadge {
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   display: grid;
   place-items: center;
-  font-size: 0.78rem;
+  font-size: 12.48px;
   font-weight: 700;
   color: $host-accent;
   background: linear-gradient(145deg, #e6f4ff 0%, #f0f5ff 100%);
@@ -471,35 +471,35 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 5.6px;
 }
 
 .sysCardTitle strong {
-  font-size: 0.82rem;
+  font-size: 13.12px;
 }
 
 .sysPill {
-  font-size: 0.62rem;
+  font-size: 9.92px;
   font-weight: 600;
-  padding: 0.08rem 0.35rem;
+  padding: 1.28px 5.6px;
   border-radius: 999px;
   color: $host-success;
   background: rgba(0, 168, 112, 0.1);
 }
 
 .sysBlurb {
-  margin: 0.22rem 0 0;
-  font-size: 0.72rem;
+  margin: 3.52px 0 0;
+  font-size: 11.52px;
   line-height: 1.45;
   color: $host-muted;
 }
 
 .sysMeta {
-  margin-top: 0.4rem;
+  margin-top: 6.4px;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.65rem;
-  font-size: 0.68rem;
+  gap: 5.6px 10.4px;
+  font-size: 10.88px;
   color: #939aa3;
   font-family: $host-mono;
 }
@@ -507,26 +507,26 @@
 .sysArrow {
   font-style: normal;
   color: #c2c7cf;
-  font-size: 0.9rem;
+  font-size: 14.4px;
   line-height: 1;
-  padding-top: 0.15rem;
+  padding-top: 2.4px;
   transition: color 0.12s ease;
 }
 
 .sysQuick {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding-top: 0.4rem;
+  gap: 5.6px;
+  padding-top: 6.4px;
   margin-top: auto;
   border-top: 1px dashed $host-line-soft;
 }
 
 .sysQuick a {
-  font-size: 0.72rem;
+  font-size: 11.52px;
   text-decoration: none;
   color: $host-accent;
-  padding: 0.18rem 0.45rem;
+  padding: 2.88px 7.2px;
   border-radius: 6px;
   background: #fff;
   border: 1px solid #d6e4ff;
@@ -539,15 +539,15 @@
 }
 
 .sysFoot {
-  margin: 0.55rem 0 0;
-  font-size: 0.72rem;
+  margin: 8.8px 0 0;
+  font-size: 11.52px;
   line-height: 1.45;
   color: $host-muted;
 }
 
 .sysFoot code {
   font-family: $host-mono;
-  font-size: 0.7rem;
+  font-size: 11.2px;
   color: $host-ink;
 }
 
@@ -556,13 +556,13 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.45rem;
+  gap: 7.2px;
 }
 
 .actionRow {
   display: grid;
-  gap: 0.12rem;
-  padding: 0.5rem 0.55rem;
+  gap: 1.92px;
+  padding: 8px 8.8px;
   border-radius: 8px;
   text-decoration: none;
   color: $host-ink;
@@ -577,27 +577,27 @@
 }
 
 .actionRow span {
-  font-size: 0.84rem;
+  font-size: 13.44px;
   font-weight: 600;
 }
 
 .actionRow small {
-  font-size: 0.72rem;
+  font-size: 11.52px;
   color: $host-muted;
 }
 
 .rail {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 13.6px;
   min-height: 0;
 }
 
 .profile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem;
+  gap: 12px;
+  padding: 13.6px;
   border-radius: 12px;
   background: #f7f8fa;
   border: 1px solid $host-line-soft;
@@ -610,7 +610,7 @@
   display: grid;
   place-items: center;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 15.2px;
   color: #fff;
   background: linear-gradient(145deg, #4096ff, $host-accent);
   flex-shrink: 0;
@@ -622,12 +622,12 @@
 
 .profile strong {
   display: block;
-  font-size: 0.9rem;
+  font-size: 14.4px;
 }
 
 .profile p {
-  margin: 0.15rem 0 0;
-  font-size: 0.75rem;
+  margin: 2.4px 0 0;
+  font-size: 12px;
   color: $host-muted;
   word-break: break-all;
 }
@@ -635,14 +635,14 @@
 .roleTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.4rem;
+  gap: 4.8px;
+  margin-top: 6.4px;
 }
 
 .roleTags span {
-  font-size: 0.65rem;
+  font-size: 10.4px;
   font-weight: 600;
-  padding: 0.12rem 0.4rem;
+  padding: 1.92px 6.4px;
   border-radius: 999px;
   color: $host-accent;
   background: $host-accent-soft;
@@ -652,11 +652,11 @@
 .railMiniGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.45rem;
+  gap: 7.2px;
 }
 
 .railMiniGrid div {
-  padding: 0.55rem 0.6rem;
+  padding: 8.8px 9.6px;
   border-radius: 10px;
   border: 1px solid $host-line-soft;
   background: #fff;
@@ -664,13 +664,13 @@
 
 .railMiniGrid span {
   display: block;
-  font-size: 0.68rem;
+  font-size: 10.88px;
   color: $host-muted;
-  margin-bottom: 0.2rem;
+  margin-bottom: 3.2px;
 }
 
 .railMiniGrid strong {
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: $host-ink;
@@ -678,7 +678,7 @@
 
 .alert,
 .alertMuted {
-  padding: 0.85rem 0.95rem;
+  padding: 13.6px 15.2px;
   border-radius: 12px;
   border: 1px solid $host-line-soft;
   background: #fff;
@@ -691,13 +691,13 @@
 
 .alertLabel {
   display: block;
-  font-size: 0.72rem;
+  font-size: 11.52px;
   color: $host-muted;
-  margin-bottom: 0.15rem;
+  margin-bottom: 2.4px;
 }
 
 .alert strong {
-  font-size: 1.75rem;
+  font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -705,15 +705,15 @@
 }
 
 .alert p {
-  margin: 0.35rem 0 0;
-  font-size: 0.78rem;
+  margin: 5.6px 0 0;
+  font-size: 12.48px;
   color: $host-muted;
 }
 
 .alertAction {
   display: inline-block;
-  margin-top: 0.55rem;
-  font-size: 0.78rem;
+  margin-top: 8.8px;
+  font-size: 12.48px;
   font-weight: 600;
   color: $host-accent;
   text-decoration: none;
@@ -725,16 +725,16 @@
 
 .railLinks {
   display: grid;
-  gap: 0.15rem;
-  padding: 0.75rem;
+  gap: 2.4px;
+  padding: 12px;
   border-radius: 12px;
   border: 1px solid $host-line-soft;
   background: #fafbfc;
 }
 
 .railLinks h3 {
-  margin: 0 0 0.35rem;
-  font-size: 0.78rem;
+  margin: 0 0 5.6px;
+  font-size: 12.48px;
   font-weight: 600;
   color: $host-muted;
 }
@@ -743,11 +743,11 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.84rem;
+  gap: 7.2px;
+  font-size: 13.44px;
   color: $host-ink;
   text-decoration: none;
-  padding: 0.4rem 0.35rem;
+  padding: 6.4px 5.6px;
   border-radius: 8px;
   transition: background 0.12s ease;
 }
@@ -759,16 +759,16 @@
 .railLinkRow i {
   font-style: normal;
   color: #c2c7cf;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .railLinkMark {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 21.6px;
+  height: 21.6px;
   border-radius: 6px;
   display: grid;
   place-items: center;
-  font-size: 0.68rem;
+  font-size: 10.88px;
   font-weight: 700;
   color: $host-accent;
   background: #fff;
@@ -778,14 +778,14 @@
 .shortcutGrid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.65rem;
+  gap: 10.4px;
 }
 
 .shortcutTile {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.75rem 0.85rem;
+  gap: 10.4px;
+  padding: 12px 13.6px;
   border-radius: 10px;
   border: 1px solid $host-line-soft;
   background: #fafbfc;
@@ -805,16 +805,16 @@
 
 .shortcutTile strong {
   display: block;
-  font-size: 0.84rem;
+  font-size: 13.44px;
   font-weight: 600;
   color: $host-ink;
 }
 
 .shortcutTile em {
   display: block;
-  margin-top: 0.12rem;
+  margin-top: 1.92px;
   font-style: normal;
-  font-size: 0.68rem;
+  font-size: 10.88px;
   font-family: $host-mono;
   color: $host-muted;
 }
@@ -825,7 +825,7 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  font-size: 0.82rem;
+  font-size: 13.12px;
   font-weight: 700;
   color: $host-accent;
   background: #fff;
@@ -836,7 +836,7 @@
 .foot {
   margin: 0;
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 11.52px;
   color: #b0b6bf;
 }
 

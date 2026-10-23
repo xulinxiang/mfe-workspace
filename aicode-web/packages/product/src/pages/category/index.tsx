@@ -178,7 +178,8 @@ export default function ProductCategoryPage() {
         submitLabel={creating ? '创建' : '保存'}
         error={formError}
       >
-        <Form layout="vertical" component={false}>
+        <div className={`ant-form ant-form-vertical ${styles.modalFormBody}`}>
+          <Form layout="vertical" component={false} colon={false} requiredMark labelAlign="left">
           <Form.Item label="分类名称" required>
             <Input
               value={draft.name}
@@ -199,7 +200,8 @@ export default function ProductCategoryPage() {
               }
             />
           </Form.Item>
-        </Form>
+          </Form>
+        </div>
       </FormModal>
     </section>
   )

@@ -1,7 +1,7 @@
 @use '../../styles/tokens' as *;
 
 .panel {
-  padding: 1.1rem 1.2rem;
+  padding: 17.6px 19.2px;
   border-radius: $host-radius;
   border: 1px solid $host-line;
   background: $host-card;
@@ -13,9 +13,9 @@
 }
 
 .error h2 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 8px;
   color: $host-danger;
-  font-size: 1.05rem;
+  font-size: 16.8px;
 }
 
 .error p {
@@ -24,15 +24,15 @@
 }
 
 .error pre {
-  margin: 1rem 0 0;
-  padding: 0.85rem;
+  margin: 16px 0 0;
+  padding: 13.6px;
   border-radius: 8px;
   background: #1f2329;
   color: #ffc53d;
   overflow: auto;
   white-space: pre-wrap;
   font-family: $host-mono;
-  font-size: 0.8rem;
+  font-size: 12.8px;
 }
 
 .code {

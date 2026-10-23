@@ -90,7 +90,8 @@ export default function ProductForm() {
       <Form
         form={form}
         layout="vertical"
-        className={`${styles.card} ${styles.form}`}
+        className={`${styles.card} ${styles.formGrid}`}
+        colon={false}
         onFinish={onFinish}
         requiredMark
       >

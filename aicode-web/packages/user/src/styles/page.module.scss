@@ -19,20 +19,20 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.9rem;
+  gap: 16px;
+  margin-bottom: 14.4px;
 }
 
 .head h1 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 20.8px;
   font-weight: 700;
 }
 
 .head p {
-  margin: 0.3rem 0 0;
+  margin: 4.8px 0 0;
   color: $muted;
-  font-size: 0.88rem;
+  font-size: 14.08px;
 }
 
 .code {
@@ -45,7 +45,7 @@
 
 .headActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -55,9 +55,9 @@
   border: 1px solid $line;
   background: #fff;
   border-radius: 6px;
-  padding: 0.45rem 0.9rem;
+  padding: 7.2px 14.4px;
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   color: $ink;
   text-decoration: none;
   cursor: pointer;
@@ -87,27 +87,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1rem;
+  gap: 16px;
+  padding: 13.6px 16px;
 }
 
 .card.toolbar {
-  margin-bottom: 0.75rem;
+  margin-bottom: 12px;
 }
 
 .search {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 8.8px;
   color: $muted;
-  font-size: 0.88rem;
+  font-size: 14.08px;
 }
 
 .search input {
   width: 240px;
   border: 1px solid $line;
   border-radius: 6px;
-  padding: 0.45rem 0.7rem;
+  padding: 7.2px 11.2px;
   font: inherit;
   outline: none;
   background: #fff;
@@ -120,7 +120,7 @@
 
 .meta {
   color: $muted;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .tableCard {
@@ -138,12 +138,12 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-size: 14.4px;
   }
 
   th {
     text-align: left;
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
     background: $bg-soft;
     color: $muted;
     font-weight: 600;
@@ -152,7 +152,7 @@
   }
 
   td {
-    padding: 0.85rem 1rem;
+    padding: 13.6px 16px;
     border-bottom: 1px solid #f0f1f2;
     vertical-align: middle;
     white-space: nowrap;
@@ -176,7 +176,7 @@
 .nameCell {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 10.4px;
   min-width: 0;
   max-width: 100%;
 }
@@ -195,13 +195,13 @@
   background: linear-gradient(145deg, #69b1ff, $accent);
   color: #fff;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 13.6px;
   flex-shrink: 0;
 }
 
 .mono {
   font-family: $mono;
-  font-size: 0.82rem;
+  font-size: 13.12px;
   color: $muted;
 }
 
@@ -213,9 +213,9 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.12rem 0.5rem;
+  padding: 1.92px 8px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -231,7 +231,7 @@
 
 .link {
   color: $accent;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   text-decoration: none;
 }
 
@@ -248,14 +248,14 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.85rem 1.1rem;
+  gap: 12px;
+  padding: 13.6px 17.6px;
   border-bottom: 1px solid $line;
 }
 
 .panelHead h2 {
   margin: 0;
-  font-size: 0.98rem;
+  font-size: 15.68px;
   font-weight: 600;
 }
 
@@ -263,18 +263,18 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem;
+  gap: 10.4px;
 }
 
 .panelBody {
-  padding: 0.85rem 1.1rem 1.1rem;
+  padding: 13.6px 17.6px 17.6px;
 }
 
 .searchInline input {
   width: 220px;
   border: 1px solid $line;
   border-radius: 6px;
-  padding: 0.45rem 0.7rem;
+  padding: 7.2px 11.2px;
   font: inherit;
   outline: none;
   background: #fff;
@@ -288,21 +288,21 @@
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 14.4px;
 }
 
 .dataTable th {
   text-align: left;
-  padding: 0.55rem 0.65rem;
+  padding: 8.8px 10.4px;
   color: $muted;
   font-weight: 600;
-  font-size: 0.78rem;
+  font-size: 12.48px;
   border-bottom: 1px solid $line;
   white-space: nowrap;
 }
 
 .dataTable td {
-  padding: 0.75rem 0.65rem;
+  padding: 12px 10.4px;
   border-bottom: 1px solid #f0f1f2;
   vertical-align: middle;
 }
@@ -327,13 +327,13 @@
 }
 
 .bannerError {
-  margin: 0 0 0.75rem;
-  padding: 0.55rem 0.75rem;
+  margin: 0 0 12px;
+  padding: 8.8px 12px;
   border-radius: 6px;
   background: #fff2f0;
   border: 1px solid #ffccc7;
   color: $danger;
-  font-size: 0.88rem;
+  font-size: 14.08px;
 }
 
 .rowActions {
@@ -347,7 +347,7 @@
 .actionSep {
   width: 1px;
   height: 12px;
-  margin: 0 0.45rem;
+  margin: 0 7.2px;
   background: $line;
   flex-shrink: 0;
 }
@@ -358,7 +358,7 @@
   z-index: 2000;
   display: grid;
   place-items: center;
-  padding: 1.25rem;
+  padding: 20px;
   background: rgba(15, 23, 42, 0.45);
 }
 
@@ -374,14 +374,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.85rem 1.1rem;
+  gap: 12px;
+  padding: 13.6px 17.6px;
   border-bottom: 1px solid $line;
 }
 
 .modalHeader h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -389,26 +389,26 @@
   border: 0;
   background: transparent;
   color: $muted;
-  font-size: 1.35rem;
+  font-size: 21.6px;
   line-height: 1;
   cursor: pointer;
-  padding: 0.15rem 0.35rem;
+  padding: 2.4px 5.6px;
 }
 
 .modalForm {
   display: grid;
-  gap: 0.85rem;
-  padding: 1rem 1.1rem 1.1rem;
+  gap: 13.6px;
+  padding: 16px 17.6px 17.6px;
 }
 
 .field {
   display: grid;
-  gap: 0.35rem;
+  gap: 5.6px;
 }
 
 .field span {
   color: $muted;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .field input,
@@ -417,7 +417,7 @@
   box-sizing: border-box;
   border: 1px solid $line;
   border-radius: 6px;
-  padding: 0.55rem 0.7rem;
+  padding: 8.8px 11.2px;
   font: inherit;
   outline: none;
   background: #fff;
@@ -438,8 +438,8 @@
 .modalFooter {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-  padding-top: 0.25rem;
+  gap: 8px;
+  padding-top: 4px;
 }
 
 .modalForm .formError {
@@ -453,7 +453,7 @@
   padding: 0;
   color: $accent;
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   cursor: pointer;
   text-decoration: none;
 }
@@ -469,50 +469,50 @@
 .empty {
   text-align: center;
   color: $muted;
-  padding: 2rem 1rem;
+  padding: 32px 16px;
 }
 
 .detail {
-  padding: 1.1rem 1.2rem;
+  padding: 17.6px 19.2px;
 
   dl {
     margin: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem 1.25rem;
+    gap: 16px 20px;
   }
 
   dt {
     color: $muted;
-    font-size: 0.82rem;
-    margin-bottom: 0.25rem;
+    font-size: 13.12px;
+    margin-bottom: 4px;
   }
 
   dd {
     margin: 0;
-    font-size: 0.98rem;
+    font-size: 15.68px;
   }
 }
 
 .form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1.25rem;
+  gap: 14.4px 20px;
   width: 100%;
   max-width: none;
   box-sizing: border-box;
-  padding: 1.1rem 1.2rem;
-  margin-bottom: 0.75rem;
+  padding: 17.6px 19.2px;
+  margin-bottom: 12px;
 
   label {
     display: grid;
-    gap: 0.4rem;
+    gap: 6.4px;
     min-width: 0;
   }
 
   span {
     color: $muted;
-    font-size: 0.85rem;
+    font-size: 13.6px;
   }
 
   input,
@@ -521,7 +521,7 @@
     box-sizing: border-box;
     border: 1px solid $line;
     border-radius: 6px;
-    padding: 0.55rem 0.7rem;
+    padding: 8.8px 11.2px;
     font: inherit;
     outline: none;
     background: #fff;
@@ -537,17 +537,49 @@
 .formActions {
   grid-column: 1 / -1;
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
   align-items: center;
-  padding-top: 0.15rem;
+  padding-top: 2.4px;
 }
 
 .formError {
   grid-column: 1 / -1;
   margin: 0;
   color: $danger;
-  font-size: 0.88rem;
+  font-size: 14.08px;
+}
+
+.modalFormBody {
+  :global(.ant-form-item) {
+    margin-bottom: 12px;
+  }
+
+  :global(.ant-form-item:last-child) {
+    margin-bottom: 0;
+  }
+
+  :global(.ant-form-item-label) {
+    text-align: left;
+    padding: 0 0 5.6px !important;
+  }
+
+  :global(.ant-form-item-label > label) {
+    height: auto;
+  }
+
+  :global(.ant-form-item-control),
+  :global(.ant-form-item-control-input),
+  :global(.ant-form-item-control-input-content) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  :global(.ant-input),
+  :global(.ant-input-affix-wrapper),
+  :global(.ant-select) {
+    width: 100%;
+  }
 }
 
 @media (max-width: 720px) {

@@ -17,7 +17,8 @@
     "preview": "concurrently -n host,product,user -c blue,green,magenta \"npm run preview -w @mfe/host\" \"npm run preview -w @mfe/product\" \"npm run preview -w @mfe/user\""
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "postcss-pxtorem": "^6.1.0"
   },
   "engines": {
     "node": ">=18"

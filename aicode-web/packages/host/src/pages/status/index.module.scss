@@ -8,19 +8,19 @@
 
 .card {
   text-align: center;
-  padding: 2.5rem;
+  padding: 40px;
 }
 
 .code {
   margin: 0;
   color: $host-accent;
   font-family: $host-mono;
-  font-size: 4rem;
+  font-size: 64px;
   line-height: 1;
 }
 
 .card h1 {
-  margin: 1rem 0 0.5rem;
+  margin: 16px 0 8px;
   color: $host-ink;
 }
 
@@ -30,7 +30,7 @@
 
 .link {
   display: inline-block;
-  margin-top: 1rem;
+  margin-top: 16px;
   color: $host-accent;
   text-decoration: none;
 }

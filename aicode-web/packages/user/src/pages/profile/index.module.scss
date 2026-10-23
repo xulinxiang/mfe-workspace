@@ -21,20 +21,20 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.9rem;
+  gap: 16px;
+  margin-bottom: 14.4px;
 }
 
 .head h1 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 20.8px;
   font-weight: 700;
 }
 
 .head p {
-  margin: 0.3rem 0 0;
+  margin: 4.8px 0 0;
   color: $muted;
-  font-size: 0.88rem;
+  font-size: 14.08px;
 }
 
 .btn {
@@ -42,9 +42,9 @@
   background: $accent;
   color: #fff;
   border-radius: 6px;
-  padding: 0.45rem 0.9rem;
+  padding: 7.2px 14.4px;
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 14.08px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(22, 119, 255, 0.25);
@@ -53,7 +53,7 @@
 .layout {
   display: grid;
   grid-template-columns: 240px 1fr;
-  gap: 0.85rem;
+  gap: 13.6px;
 }
 
 .card {
@@ -64,11 +64,11 @@
 }
 
 .profile {
-  padding: 1.4rem 1rem;
+  padding: 22.4px 16px;
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 0.35rem;
+  gap: 5.6px;
   align-content: start;
 }
 
@@ -78,60 +78,60 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(145deg, #69b1ff, $accent);
-  margin-bottom: 0.35rem;
+  margin-bottom: 5.6px;
   box-shadow: 0 8px 20px rgba(22, 119, 255, 0.28);
 }
 
 .profile p {
   margin: 0;
   color: $muted;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .role {
-  margin-top: 0.45rem;
+  margin-top: 7.2px;
   background: $accent-soft;
   color: $accent;
   border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.75rem;
+  padding: 3.2px 10.4px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .form {
-  padding: 1.1rem 1.2rem 1.25rem;
+  padding: 17.6px 19.2px 20px;
 }
 
 .form h3 {
-  margin: 0 0 1rem;
-  font-size: 0.98rem;
+  margin: 0 0 16px;
+  font-size: 15.68px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.9rem 1rem;
+  gap: 14.4px 16px;
 }
 
 .grid label {
   display: grid;
-  gap: 0.4rem;
+  gap: 6.4px;
 }
 
 .grid span {
   color: $muted;
-  font-size: 0.85rem;
+  font-size: 13.6px;
 }
 
 .grid input,
 .grid select {
   border: 1px solid $line;
   border-radius: 6px;
-  padding: 0.55rem 0.7rem;
+  padding: 8.8px 11.2px;
   font: inherit;
   outline: none;
   background: #fff;
@@ -144,9 +144,9 @@
 }
 
 .hint {
-  margin: 1rem 0 0;
+  margin: 16px 0 0;
   color: #8a9199;
-  font-size: 0.82rem;
+  font-size: 13.12px;
 }
 
 @media (max-width: 720px) {
