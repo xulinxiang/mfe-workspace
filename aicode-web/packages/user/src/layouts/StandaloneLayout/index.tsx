@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { cx } from '@/utils/cx'
+import StandaloneAuthGate, { useStandaloneSession } from './StandaloneAuthGate'
 import styles from './index.module.scss'
 
 const LOCAL_MENU = [
@@ -14,6 +15,8 @@ type Props = {
 
 export default function StandaloneLayout({ children }: Props) {
   const { pathname } = useLocation()
+  const { session } = useStandaloneSession()
+  const initial = session?.name?.slice(0, 1) ?? '—'
   const current =
     LOCAL_MENU.find((m) => (m.end ? pathname === m.to : pathname.startsWith(m.to)))?.label ??
     '页面'
@@ -65,12 +68,14 @@ export default function StandaloneLayout({ children }: Props) {
           <div className={styles.actions}>
             <span className={styles.warn}>Standalone</span>
             <div className={styles.headerUser}>
-              <span className={styles.avatar}>D</span>
-              <span>demo@company.com</span>
+              <span className={styles.avatar}>{initial}</span>
+              <span>{session?.email ?? '未登录'}</span>
             </div>
           </div>
         </header>
-        <main className={styles.content}>{children}</main>
+        <main className={styles.content}>
+          <StandaloneAuthGate>{children}</StandaloneAuthGate>
+        </main>
       </div>
     </div>
   )

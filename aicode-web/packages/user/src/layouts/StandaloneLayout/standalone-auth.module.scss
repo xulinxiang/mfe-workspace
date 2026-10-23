@@ -1,0 +1,29 @@
+.banner {
+  margin-bottom: 1rem;
+}
+
+.bannerBody p {
+  margin: 0 0 0.65rem;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.bannerBody code {
+  font-size: 0.85em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.error {
+  margin: 0.5rem 0 0;
+  color: #cf1322;
+  font-size: 0.85rem;
+}
